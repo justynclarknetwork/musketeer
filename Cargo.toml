@@ -1,0 +1,22 @@
+[package]
+name = "musketeer"
+version = "0.0.0"
+edition = "2021"
+license = "MIT"
+description = "Local-first, role-separated execution harness CLI"
+repository = "https://github.com/<you>/musketeer"
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+serde = { version = "1", features = ["derive"] }
+serde_yaml = "0.9"
+serde_json = "1"
+thiserror = "1"
+anyhow = "1"
+time = { version = "0.3", features = ["formatting"] }
+uuid = { version = "1", features = ["v4"] }
+sha2 = "0.10"
+hex = "0.4"
+
+[dev-dependencies]
+tempfile = "3"

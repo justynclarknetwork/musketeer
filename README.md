@@ -87,6 +87,19 @@ No public releases yet.
 
 ---
 
+## Development
+
+```sh
+cargo fmt
+cargo test
+cargo run -- init
+cargo run -- run new
+cargo run -- run status
+cargo run -- check
+```
+
+---
+
 ## License
 
 TBD
