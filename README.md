@@ -87,15 +87,52 @@ No public releases yet.
 
 ---
 
+## Prerequisites
+
+- [Rust](https://www.rust-lang.org/tools/install) (edition 2021, toolchain 1.85+)
+
+## Getting Started
+
+Build the CLI:
+
+```sh
+cargo build
+```
+
+### Workflow
+
+1. **Initialize a workspace** in the current directory. This creates a `.musketeer/` directory with a config file and a `runs/` folder:
+
+   ```sh
+   cargo run -- init
+   ```
+
+2. **Create a new run.** Each run gets a unique UUID and five YAML state files (intent, constraints, plan, progress, handoff):
+
+   ```sh
+   cargo run -- run new
+   ```
+
+3. **Check run status.** Shows task progress for all runs, or a specific run with `--replay <id>`:
+
+   ```sh
+   cargo run -- run status
+   cargo run -- run status --replay <replay-id>
+   ```
+
+4. **Validate invariants.** Checks file presence, replay ID consistency, progress sequence integrity, and plan task uniqueness. Validates the latest run by default, or a specific one with `--replay <id>`:
+
+   ```sh
+   cargo run -- check
+   cargo run -- check --replay <replay-id>
+   ```
+
 ## Development
 
 ```sh
-cargo fmt
-cargo test
-cargo run -- init
-cargo run -- run new
-cargo run -- run status
-cargo run -- check
+cargo fmt          # format code
+cargo test         # run all tests
+cargo test <name>  # run a single test by name
 ```
 
 ---

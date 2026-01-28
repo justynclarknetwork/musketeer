@@ -35,6 +35,6 @@ pub fn write_file_atomic(path: &Path, bytes: &[u8]) -> anyhow::Result<()> {
 }
 
 pub fn write_yaml<T: Serialize>(path: &Path, value: &T) -> anyhow::Result<()> {
-    let bytes = serde_yaml::to_vec(value).context("failed to serialize yaml")?;
-    write_file_atomic(path, &bytes)
+    let yaml_str = serde_yaml::to_string(value).context("failed to serialize yaml")?;
+    write_file_atomic(path, yaml_str.as_bytes())
 }
