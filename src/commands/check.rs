@@ -6,6 +6,7 @@ use anyhow::Context;
 use crate::error::MusketeerError;
 use crate::fs::layout;
 use crate::invariants::check::check_run;
+use crate::ui::{mode, plain, pretty};
 
 pub fn run(replay: Option<String>) -> anyhow::Result<()> {
     let root = env::current_dir().context("failed to resolve current dir")?;
@@ -22,13 +23,26 @@ pub fn run(replay: Option<String>) -> anyhow::Result<()> {
 
     let result = check_run(&root, &replay_id);
     if result.ok {
-        println!("check ok: {replay_id}");
+        let tty = mode::CrosstermTty;
+        let selected_mode = mode::select_mode(&tty);
+        let line = match selected_mode {
+            mode::Mode::Plain => plain::ok_line(&replay_id),
+            mode::Mode::Pretty | mode::Mode::InteractiveEligible => pretty::ok_line(&replay_id),
+        };
+        println!("{line}");
         return Ok(());
     }
 
     for error in result.errors {
         eprintln!("{error}");
     }
+    let tty = mode::CrosstermTty;
+    let selected_mode = mode::select_mode(&tty);
+    let line = match selected_mode {
+        mode::Mode::Plain => plain::check_failed_line(&replay_id),
+        mode::Mode::Pretty | mode::Mode::InteractiveEligible => pretty::fail_line(&replay_id),
+    };
+    eprintln!("{line}");
     Err(MusketeerError::InvariantFailed(replay_id).into())
 }
 
