@@ -9,7 +9,7 @@ pub fn run() -> anyhow::Result<()> {
     let root = env::current_dir().context("failed to resolve current dir")?;
     let state_dir = layout::state_dir(&root);
     if state_dir.exists() {
-        println!("already initialized");
+        println!("workspace already initialized");
         return Ok(());
     }
 
@@ -41,6 +41,6 @@ pub fn run() -> anyhow::Result<()> {
 
     write::write_yaml(&layout::config_path(&root), &config)?;
     write::write_file_atomic(&layout::runs_dir(&root).join(".gitkeep"), b"")?;
-    println!("initialized workspace in {}", state_dir.display());
+    println!("workspace ready in {}", state_dir.display());
     Ok(())
 }

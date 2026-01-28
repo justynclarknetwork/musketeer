@@ -49,6 +49,6 @@ pub fn run() -> anyhow::Result<()> {
     write::write_yaml(&layout::progress_path(&root, &replay_id), &progress)?;
     write::write_yaml(&layout::handoff_path(&root, &replay_id), &handoff)?;
 
-    println!("created run {replay_id}");
+    println!("prepared handoff record {replay_id}");
     Ok(())
 }

@@ -31,7 +31,7 @@ pub fn run(replay: Option<String>) -> anyhow::Result<()> {
     }
 
     if entries.is_empty() {
-        println!("no runs found");
+        println!("no handoffs found");
         return Ok(());
     }
 

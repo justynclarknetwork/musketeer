@@ -123,14 +123,14 @@ fn draw(frame: &mut ratatui::Frame, summaries: &[RunSummary], selected: usize) {
     state.select(Some(selected));
 
     let list = List::new(items)
-        .block(Block::default().borders(Borders::ALL).title("runs"))
+        .block(Block::default().borders(Borders::ALL).title("handoffs"))
         .highlight_style(Style::default().add_modifier(Modifier::BOLD));
     frame.render_stateful_widget(list, body_layout[0], &mut state);
 
     let detail = summaries.get(selected);
     let detail_lines = match detail {
         Some(summary) => vec![
-            Line::from(vec![Span::raw(format!("replay_id: {}", summary.replay_id))]),
+            Line::from(vec![Span::raw(format!("handoff id: {}", summary.replay_id))]),
             Line::from(vec![Span::raw(format!(
                 "tasks: {}/{}",
                 summary.done, summary.total
@@ -144,7 +144,7 @@ fn draw(frame: &mut ratatui::Frame, summaries: &[RunSummary], selected: usize) {
         Paragraph::new(detail_lines).block(Block::default().borders(Borders::ALL).title("details"));
     frame.render_widget(detail_widget, body_layout[1]);
 
-    let help = Paragraph::new("q quit  r refresh  enter print selected and exit")
+    let help = Paragraph::new("q quit  r refresh  enter print selection and exit")
         .block(Block::default().borders(Borders::ALL));
     frame.render_widget(help, main_layout[1]);
 }

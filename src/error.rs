@@ -5,7 +5,7 @@ pub enum MusketeerError {
     #[error("workspace not initialized: missing {0}")]
     WorkspaceMissing(String),
 
-    #[error("run not found: {0}")]
+    #[error("handoff not found: {0}")]
     RunNotFound(String),
 
     #[error("invariant failed: {0}")]
