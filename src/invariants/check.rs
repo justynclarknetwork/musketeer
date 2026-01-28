@@ -14,7 +14,7 @@ pub fn check_run(workspace_root: &Path, replay_id: &str) -> CheckResult {
     let mut errors = Vec::new();
     let run_dir = layout::run_dir(workspace_root, replay_id);
     if !run_dir.exists() {
-        errors.push(format!("run not found: {replay_id}"));
+        errors.push(format!("handoff not found: {replay_id}"));
         return CheckResult { ok: false, errors };
     }
 
