@@ -4,7 +4,7 @@ version = "0.0.0"
 edition = "2021"
 license = "MIT"
 description = "Local-first, role-separated execution harness CLI"
-repository = "https://github.com/<you>/musketeer"
+repository = "https://github.com/justyn-clark/musketeer"
 
 [dependencies]
 clap = { version = "4", features = ["derive"] }
