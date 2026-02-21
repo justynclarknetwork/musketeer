@@ -139,4 +139,4 @@ cargo test <name>  # run a single test by name
 
 ## License
 
-TBD
+MIT (see `LICENSE`).
