@@ -11,5 +11,10 @@ pub struct ProgressEntry {
     pub seq: u64,
     pub ts: String,
     pub role: String,
+    #[serde(default)]
+    pub kind: String,
+    #[serde(default)]
+    pub message: String,
+    #[serde(default)]
     pub summary: String,
 }

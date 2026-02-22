@@ -4,34 +4,33 @@ use anyhow::Context;
 
 use crate::fs::{layout, write};
 use crate::model::config::{AgentSeat, Agents, Config, Policy, Redaction, Workspace};
+use crate::output;
 
-pub fn run() -> anyhow::Result<()> {
+pub fn run(json_mode: bool) -> anyhow::Result<()> {
     let root = env::current_dir().context("failed to resolve current dir")?;
-    let state_dir = layout::state_dir(&root);
-    if state_dir.exists() {
-        println!("workspace already initialized");
-        return Ok(());
-    }
+    let state = layout::state_dir(&root);
+    let runs = layout::runs_dir(&root);
+    write::ensure_dir(&state)?;
+    write::ensure_dir(&runs)?;
 
-    write::ensure_dir(&layout::runs_dir(&root))?;
-    let config = Config {
+    let cfg = Config {
         version: 1,
         workspace: Workspace {
-            state_dir: layout::STATE_DIR.to_string(),
+            state_dir: ".musketeer".to_string(),
         },
         agents: Agents {
             originator: AgentSeat {
-                adapter: "local".to_string(),
+                adapter: "manual".to_string(),
             },
             cross_examiner: AgentSeat {
-                adapter: "local".to_string(),
+                adapter: "manual".to_string(),
             },
             executor: AgentSeat {
-                adapter: "local".to_string(),
+                adapter: "manual".to_string(),
             },
         },
         policy: Policy {
-            executor_allowlist: Vec::new(),
+            executor_allowlist: vec!["cargo".to_string(), "git".to_string()],
             redaction: Redaction {
                 enabled: false,
                 patterns: Vec::new(),
@@ -39,8 +38,11 @@ pub fn run() -> anyhow::Result<()> {
         },
     };
 
-    write::write_yaml(&layout::config_path(&root), &config)?;
-    write::write_file_atomic(&layout::runs_dir(&root).join(".gitkeep"), b"")?;
-    println!("workspace ready in {}", state_dir.display());
+    write::write_yaml(&layout::config_path(&root), &cfg)?;
+    if json_mode {
+        output::emit_ok(json_mode, None, serde_json::json!({}));
+    } else {
+        println!("workspace ready in {}", state.display());
+    }
     Ok(())
 }

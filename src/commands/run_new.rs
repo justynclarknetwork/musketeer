@@ -7,8 +7,9 @@ use crate::error::MusketeerError;
 use crate::fs::{layout, write};
 use crate::model::progress::ProgressLog;
 use crate::model::run::{Constraints, Handoff, Intent, Plan};
+use crate::output;
 
-pub fn run() -> anyhow::Result<()> {
+pub fn run(json_mode: bool) -> anyhow::Result<()> {
     let root = env::current_dir().context("failed to resolve current dir")?;
     let state_dir = layout::state_dir(&root);
     if !state_dir.exists() {
@@ -41,6 +42,8 @@ pub fn run() -> anyhow::Result<()> {
     let handoff = Handoff {
         replay_id: replay_id.clone(),
         note: "".to_string(),
+        verdict: None,
+        verdict_reason: None,
     };
 
     write::write_yaml(&layout::intent_path(&root, &replay_id), &intent)?;
@@ -49,6 +52,14 @@ pub fn run() -> anyhow::Result<()> {
     write::write_yaml(&layout::progress_path(&root, &replay_id), &progress)?;
     write::write_yaml(&layout::handoff_path(&root, &replay_id), &handoff)?;
 
-    println!("prepared handoff record {replay_id}");
+    if json_mode {
+        output::emit_ok(
+            json_mode,
+            Some(&replay_id),
+            serde_json::json!({"replay_id": replay_id}),
+        );
+    } else {
+        println!("prepared handoff record {replay_id}");
+    }
     Ok(())
 }

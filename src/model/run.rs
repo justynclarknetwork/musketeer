@@ -32,4 +32,8 @@ pub struct PlanTask {
 pub struct Handoff {
     pub replay_id: String,
     pub note: String,
+    #[serde(default)]
+    pub verdict: Option<String>,
+    #[serde(default)]
+    pub verdict_reason: Option<String>,
 }
