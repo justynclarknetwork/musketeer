@@ -17,11 +17,11 @@ fn setup_temp_workspace() -> TempDir {
 }
 
 fn init_workspace() {
-    musketeer::commands::init::run().expect("init workspace");
+    musketeer::commands::init::run(false).expect("init workspace");
 }
 
 fn create_run() -> String {
-    musketeer::commands::run_new::run().expect("run new");
+    musketeer::commands::run_new::run(false).expect("run new");
     let runs_dir = layout::runs_dir(&env::current_dir().unwrap());
     let mut entries: Vec<String> = fs::read_dir(runs_dir)
         .unwrap()
@@ -129,13 +129,17 @@ fn check_fails_if_progress_seq_not_increasing() {
             ProgressEntry {
                 seq: 1,
                 ts: "2024-01-01T00:00:00Z".to_string(),
-                role: "originator".to_string(),
+                role: "planner".to_string(),
+                kind: "note".to_string(),
+                message: "first".to_string(),
                 summary: "first".to_string(),
             },
             ProgressEntry {
                 seq: 1,
                 ts: "2024-01-01T00:00:01Z".to_string(),
                 role: "executor".to_string(),
+                kind: "note".to_string(),
+                message: "second".to_string(),
                 summary: "second".to_string(),
             },
         ],

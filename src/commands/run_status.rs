@@ -7,8 +7,9 @@ use crate::error::MusketeerError;
 use crate::fs::{layout, read};
 use crate::model::progress::ProgressLog;
 use crate::model::run::Plan;
+use crate::output;
 
-pub fn run(replay: Option<String>) -> anyhow::Result<()> {
+pub fn run(replay: Option<String>, json_mode: bool) -> anyhow::Result<()> {
     let root = env::current_dir().context("failed to resolve current dir")?;
     let runs_dir = layout::runs_dir(&root);
     if !runs_dir.exists() {
@@ -27,25 +28,49 @@ pub fn run(replay: Option<String>) -> anyhow::Result<()> {
         if !entries.contains(&replay_id) {
             return Err(MusketeerError::RunNotFound(replay_id).into());
         }
-        let summary = summarize_run(&root, &replay_id)?;
-        println!("{summary}");
+        let (done, total, last_ts) = summarize_run(&root, &replay_id)?;
+        if json_mode {
+            output::emit_ok(
+                json_mode,
+                Some(&replay_id),
+                serde_json::json!({"done": done, "total": total, "last": last_ts}),
+            );
+        } else {
+            println!("{replay_id} tasks {done}/{total} last {last_ts}");
+        }
         return Ok(());
     }
 
     if entries.is_empty() {
-        println!("no runs found");
+        if json_mode {
+            output::emit_ok(json_mode, None, serde_json::json!({"runs": []}));
+        } else {
+            println!("no runs found");
+        }
         return Ok(());
     }
 
-    for replay_id in entries {
-        let summary = summarize_run(&root, &replay_id)?;
-        println!("{summary}");
+    if json_mode {
+        let mut runs = Vec::new();
+        for replay_id in entries {
+            let (done, total, last_ts) = summarize_run(&root, &replay_id)?;
+            runs.push(serde_json::json!({"replay_id": replay_id, "done": done, "total": total, "last": last_ts}));
+        }
+        output::emit_ok(json_mode, None, serde_json::json!({"runs": runs}));
+    } else {
+        for replay_id in entries {
+            let (done, total, last_ts) = summarize_run(&root, &replay_id)?;
+            println!("{replay_id} tasks {done}/{total} last {last_ts}");
+        }
     }
 
     Ok(())
 }
 
-fn summarize_run(root: &std::path::Path, replay_id: &str) -> anyhow::Result<String> {
+fn summarize_run(
+    root: &std::path::Path,
+    replay_id: &str,
+) -> anyhow::Result<(usize, usize, String)> {
     let plan: Plan = read::read_yaml(&layout::plan_path(root, replay_id))?;
     let progress: ProgressLog = read::read_yaml(&layout::progress_path(root, replay_id))?;
 
@@ -55,14 +80,11 @@ fn summarize_run(root: &std::path::Path, replay_id: &str) -> anyhow::Result<Stri
         .iter()
         .filter(|task| task.status == "done")
         .count();
-    let last_ts = progress.entries.last().map(|entry| entry.ts.as_str());
-    let last_ts_display = last_ts.unwrap_or("-");
+    let last_ts = progress
+        .entries
+        .last()
+        .map(|entry| entry.ts.clone())
+        .unwrap_or_else(|| "-".to_string());
 
-    Ok(format!(
-        "{replay_id} tasks {done}/{total} last {last}",
-        replay_id = replay_id,
-        done = done_tasks,
-        total = total_tasks,
-        last = last_ts_display
-    ))
+    Ok((done_tasks, total_tasks, last_ts))
 }
