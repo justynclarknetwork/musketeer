@@ -16,7 +16,7 @@ pub struct Workspace {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Agents {
     pub originator: AgentSeat,
-    pub cross_examiner: AgentSeat,
+    pub examiner: AgentSeat,
     pub executor: AgentSeat,
 }
 

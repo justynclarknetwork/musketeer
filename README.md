@@ -1,15 +1,10 @@
 # Musketeer
 
-Musketeer is a local-first, CLI-based execution harness for role-separated AI workflows.
+Musketeer is a governed execution harness for role-separated AI work.
 
-It is designed to make AI-assisted work:
-- deterministic
-- auditable
-- resumable
-- governable
+It structures planning, challenge, execution, and review into explicit stages with clear handoffs, bounded loops, and auditable outcomes.
 
-Musketeer does not replace models, agents, or editors.
-It enforces **how work moves from intent to execution**.
+Musketeer does not replace models, agents, or editors. It governs how work moves through them.
 
 ---
 
@@ -18,19 +13,19 @@ It enforces **how work moves from intent to execution**.
 Musketeer operates on a strict three-role model:
 
 1. **Originator**
-   - Ideation
-   - Planning
-   - Intent definition
+   - Intent formation
+   - Scope and constraint definition
+   - Handoff preparation
 
-2. **Cross-Examiner**
-   - Adversarial review
-   - Constraint enforcement
-   - Risk and gap detection
+2. **Examiner**
+   - Adversarial validation
+   - Assumption testing
+   - Drift detection
 
 3. **Executor**
-   - Deterministic execution
-   - Tool usage
+   - Bounded execution
    - Artifact production
+   - Results for review
 
 Each role is isolated.
 Each handoff is explicit.
@@ -43,7 +38,7 @@ All state lives on disk.
 - A CLI
 - Local-first
 - File-based state
-- Role-driven execution
+- Role-driven execution governance
 - Model-agnostic via adapters
 - Built for replay, inspection, and audit
 
@@ -52,38 +47,28 @@ All state lives on disk.
 ## What Musketeer Is Not
 
 - Not an agent framework
-- Not a chatbot
+- Not a chat wrapper
+- Not an orchestration SDK
 - Not a hosted service
 - Not autonomous
-- Not magic
 
-Musketeer prioritizes discipline over novelty.
+Musketeer does not try to make models smarter. It makes model-driven work more governable.
 
 ---
 
 ## Design Principles
 
-- State over chat history
-- Roles over models
-- Contracts over conventions
 - Explicit handoffs over implicit memory
+- Role separation over model selection
+- Bounded execution over open-ended generation
+- Contracts over conventions
 - Determinism over creativity
 
 ---
 
 ## Status
 
-This repository is under active construction.
-
-Initial milestones:
-- Workspace initialization
-- Run and replay identifiers
-- On-disk state model
-- Invariant enforcement
-- Adapter interfaces for external agent CLIs
-
-No stability guarantees yet.
-No public releases yet.
+This repository is under active construction. No public releases yet.
 
 ---
 

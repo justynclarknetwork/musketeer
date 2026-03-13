@@ -22,7 +22,7 @@ pub fn run(json_mode: bool) -> anyhow::Result<()> {
             originator: AgentSeat {
                 adapter: "manual".to_string(),
             },
-            cross_examiner: AgentSeat {
+            examiner: AgentSeat {
                 adapter: "manual".to_string(),
             },
             executor: AgentSeat {
