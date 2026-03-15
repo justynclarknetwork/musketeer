@@ -2,12 +2,13 @@ use std::env;
 
 use anyhow::Context;
 
-use crate::commands::util;
 use crate::error::MusketeerError;
 use crate::fs::{layout, read};
 use crate::model::progress::ProgressLog;
 use crate::model::run::{Constraints, Intent, Plan};
 use crate::output;
+use crate::small_adapter;
+use crate::workspace_mode::{self, WorkspaceContext};
 
 pub fn run(
     role: String,
@@ -17,16 +18,38 @@ pub fn run(
 ) -> anyhow::Result<()> {
     validate_role(&role)?;
     let root = env::current_dir().context("failed to resolve current dir")?;
-    let replay_id = replay.unwrap_or(util::latest_replay_id(&root)?);
+    let ctx = workspace_mode::resolve(&root)?;
+    let replay_id = workspace_mode::resolve_replay_id(&ctx, replay)?;
 
-    let intent: Intent = read::read_yaml(&layout::intent_path(&root, &replay_id))
-        .map_err(|_| MusketeerError::HandoffInvalid("intent missing".to_string()))?;
-    let constraints: Constraints = read::read_yaml(&layout::constraints_path(&root, &replay_id))
-        .map_err(|_| MusketeerError::HandoffInvalid("constraints missing".to_string()))?;
-    let plan: Plan = read::read_yaml(&layout::plan_path(&root, &replay_id))
-        .map_err(|_| MusketeerError::HandoffInvalid("plan missing".to_string()))?;
-    let progress: ProgressLog = read::read_yaml(&layout::progress_path(&root, &replay_id))
-        .map_err(|_| MusketeerError::HandoffInvalid("progress missing".to_string()))?;
+    let (intent, constraints, plan, progress) = match &ctx {
+        WorkspaceContext::SmallNative { .. } => {
+            let intent = small_adapter::read_intent(&root, &replay_id)
+                .map_err(|e| MusketeerError::HandoffInvalid(format!("intent: {}", e)))?;
+            let constraints = small_adapter::read_constraints(&root, &replay_id)
+                .map_err(|e| MusketeerError::HandoffInvalid(format!("constraints: {}", e)))?;
+            let plan = small_adapter::read_plan(&root, &replay_id)
+                .map_err(|e| MusketeerError::HandoffInvalid(format!("plan: {}", e)))?;
+            let progress = small_adapter::read_progress(&root, &replay_id)
+                .map_err(|e| MusketeerError::HandoffInvalid(format!("progress: {}", e)))?;
+            (intent, constraints, plan, progress)
+        }
+        WorkspaceContext::Legacy { .. } => {
+            workspace_mode::warn_legacy();
+            let intent: Intent = read::read_yaml(&layout::intent_path(&root, &replay_id))
+                .map_err(|_| MusketeerError::HandoffInvalid("intent missing".to_string()))?;
+            let constraints: Constraints =
+                read::read_yaml(&layout::constraints_path(&root, &replay_id))
+                    .map_err(|_| {
+                        MusketeerError::HandoffInvalid("constraints missing".to_string())
+                    })?;
+            let plan: Plan = read::read_yaml(&layout::plan_path(&root, &replay_id))
+                .map_err(|_| MusketeerError::HandoffInvalid("plan missing".to_string()))?;
+            let progress: ProgressLog =
+                read::read_yaml(&layout::progress_path(&root, &replay_id))
+                    .map_err(|_| MusketeerError::HandoffInvalid("progress missing".to_string()))?;
+            (intent, constraints, plan, progress)
+        }
+    };
 
     let plan_slice: Vec<_> = plan
         .tasks

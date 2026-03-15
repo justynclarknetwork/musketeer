@@ -1,126 +1,114 @@
 # Musketeer
 
-Musketeer is a governed execution harness for role-separated AI work.
+Musketeer is the trio execution harness for SMALL-governed workspaces.
 
-It structures planning, challenge, execution, and review into explicit stages with clear handoffs, bounded loops, and auditable outcomes.
+SMALL defines canonical execution state. Musketeer runs role-separated originator, examiner, and executor workflows against that state, adding packets, verdicts, and execution receipts without redefining the base contract.
 
-Musketeer does not replace models, agents, or editors. It governs how work moves through them.
+## Architecture
 
----
+Musketeer operates on a two-namespace workspace model:
 
-## Core Idea
+### `.small/` - Canonical state (owned by SMALL)
 
-Musketeer operates on a strict three-role model:
+Contains the protocol-defined execution artifacts:
 
-1. **Originator**
-   - Intent formation
-   - Scope and constraint definition
-   - Handoff preparation
+- `workspace.small.yml` - workspace identity and metadata
+- `intent.small.yml` - what you want to accomplish
+- `constraints.small.yml` - boundaries and requirements
+- `plan.small.yml` - tasks to be performed
+- `progress.small.yml` - execution progress
+- `handoff.small.yml` - structured handoff between roles
 
-2. **Examiner**
-   - Adversarial validation
-   - Assumption testing
-   - Drift detection
+Musketeer reads from `.small/` but never writes to it. These artifacts are owned by the SMALL protocol.
 
-3. **Executor**
-   - Bounded execution
-   - Artifact production
-   - Results for review
+### `.musketeer/` - Execution layer (owned by Musketeer)
 
-Each role is isolated.
-Each handoff is explicit.
-All state lives on disk.
+Contains Musketeer-specific execution state:
 
----
+- `musketeer.yml` - workspace configuration
+- `packets/` - role context packets
+- `verdicts/<replayId>.verdict.yml` - auditor verdict records
+- `runs/<replayId>/execution-log.yml` - execution logs
 
-## What Musketeer Is
+### Canonical file tree
 
-- A CLI
-- Local-first
-- File-based state
-- Role-driven execution governance
-- Model-agnostic via adapters
-- Built for replay, inspection, and audit
+```
+.small/
+  workspace.small.yml
+  intent.small.yml
+  constraints.small.yml
+  plan.small.yml
+  progress.small.yml
+  handoff.small.yml
 
----
+.musketeer/
+  musketeer.yml
+  packets/
+  verdicts/
+    <replayId>.verdict.yml
+  runs/
+    <replayId>/
+      execution-log.yml
+```
 
-## What Musketeer Is Not
-
-- Not an agent framework
-- Not a chat wrapper
-- Not an orchestration SDK
-- Not a hosted service
-- Not autonomous
-
-Musketeer does not try to make models smarter. It makes model-driven work more governable.
-
----
-
-## Design Principles
-
-- Explicit handoffs over implicit memory
-- Role separation over model selection
-- Bounded execution over open-ended generation
-- Contracts over conventions
-- Determinism over creativity
-
----
-
-## Status
-
-This repository is under active construction. No public releases yet.
-
----
-
-## Prerequisites
-
-- [Rust](https://www.rust-lang.org/tools/install) (edition 2021, toolchain 1.85+)
-
-## Getting Started
-
-Build the CLI:
+## Quickstart
 
 ```sh
 cargo build
 ```
 
-### Workflow
+Initialize a workspace (bootstraps `.small/` if missing, creates `.musketeer/`):
 
-1. **Initialize a workspace** in the current directory. This creates a `.musketeer/` directory with a config file and a `runs/` folder:
+```sh
+musketeer init
+```
 
-   ```sh
-   cargo run -- init
-   ```
+Create a run, generate packets, log progress, record a verdict, and validate:
 
-2. **Create a new run.** Each run gets a unique UUID and five YAML state files (intent, constraints, plan, progress, handoff):
+```sh
+musketeer run new
+musketeer packet --role planner
+musketeer log --role executor --kind note --message "completed task 1"
+musketeer verdict --role auditor --value approve --reason "all checks passed"
+musketeer check
+```
 
-   ```sh
-   cargo run -- run new
-   ```
+## Migration
 
-3. **Check run status.** Shows task progress for all runs, or a specific run with `--replay <id>`:
+Legacy workspaces (artifacts under `.musketeer/runs/`) can be converted to SMALL-native layout:
 
-   ```sh
-   cargo run -- run status
-   cargo run -- run status --replay <replay-id>
-   ```
+```sh
+musketeer migrate            # convert in place
+musketeer migrate --dry-run  # preview without changes
+```
 
-4. **Validate invariants.** Checks file presence, replay ID consistency, progress sequence integrity, and plan task uniqueness. Validates the latest run by default, or a specific one with `--replay <id>`:
+SMALL-native is the canonical model going forward. Legacy shadow artifacts are deprecated.
 
-   ```sh
-   cargo run -- check
-   cargo run -- check --replay <replay-id>
-   ```
+## Commands
+
+| Command | Description |
+|---------|-------------|
+| `init` | Bootstrap `.small/` if missing, create `.musketeer/` |
+| `run new` | Create a new execution run in `.musketeer/runs/` |
+| `run status` | Show run state (workspace-mode-aware) |
+| `check` | Validate SMALL state and Musketeer execution state |
+| `packet` | Read from `.small/`, generate role context packets |
+| `log` | Read SMALL progress, write execution-log.yml in `.musketeer/runs/` |
+| `verdict` | Write auditor verdict to `.musketeer/verdicts/` |
+| `migrate` | Convert legacy workspaces to SMALL-native layout |
+
+All commands support `--json` for machine-readable output and `--replay <id>` where applicable.
+
+## Prerequisites
+
+- [Rust](https://www.rust-lang.org/tools/install) 1.85+
 
 ## Development
 
 ```sh
 cargo fmt          # format code
 cargo test         # run all tests
-cargo test <name>  # run a single test by name
 ```
-
----
 
 ## License
 

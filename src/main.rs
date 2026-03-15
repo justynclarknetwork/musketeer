@@ -31,6 +31,9 @@ fn main() {
             reason,
             replay,
         } => musketeer::commands::verdict::run(role, value, reason, replay, cli.json),
+        musketeer::cli::Command::Migrate { dry_run, force } => {
+            musketeer::commands::migrate::run(cli.json, dry_run, force)
+        }
     };
 
     if let Err(err) = result {

@@ -3,6 +3,11 @@ use std::path::{Path, PathBuf};
 pub const STATE_DIR: &str = ".musketeer";
 pub const RUNS_DIR: &str = "runs";
 
+// NOTE: The artifact file constants and path functions below are LEGACY.
+// In SMALL-native mode, canonical artifacts (intent, constraints, plan,
+// progress, handoff) live in `.small/` and are owned by SMALL.
+// These legacy paths are retained for backward compatibility only.
+
 pub const CONFIG_FILE: &str = "musketeer.yml";
 
 pub const INTENT_FILE: &str = "intent.yml";

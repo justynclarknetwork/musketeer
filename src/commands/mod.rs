@@ -1,6 +1,7 @@
 pub mod check;
 pub mod init;
 pub mod log;
+pub mod migrate;
 pub mod packet;
 pub mod run_new;
 pub mod run_status;
