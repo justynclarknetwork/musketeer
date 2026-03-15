@@ -1,10 +1,41 @@
 # Musketeer
 
-Musketeer is a governed execution harness for role-separated AI work.
+Musketeer is the trio execution harness for SMALL-governed workspaces.
 
-It structures planning, challenge, execution, and review into explicit stages with clear handoffs, bounded loops, and auditable outcomes.
+SMALL defines canonical execution state. Musketeer runs role-separated originator, examiner, and executor workflows against that state, adding packets, verdicts, and execution receipts without redefining the base contract.
 
-Musketeer does not replace models, agents, or editors. It governs how work moves through them.
+---
+
+## Architecture
+
+Musketeer operates on a layered workspace model:
+
+### `.small/` - Canonical state (owned by SMALL)
+
+Contains the protocol-defined execution artifacts:
+
+- `workspace.small.yml` - workspace identity and metadata
+- `intent.small.yml` - what you want to accomplish
+- `constraints.small.yml` - boundaries and requirements
+- `plan.small.yml` - tasks to be performed
+- `progress.small.yml` - execution progress
+- `handoff.small.yml` - structured handoff between roles
+
+Musketeer reads from `.small/` but never writes to it. These artifacts are owned by the SMALL protocol.
+
+### `.musketeer/` - Execution layer (owned by Musketeer)
+
+Contains Musketeer-specific execution state:
+
+- `musketeer.yml` - workspace configuration
+- `packets/` - role context packets
+- `verdicts/` - auditor verdict records
+- `runs/` - execution run history
+- `bridge/` - bridge execution logs
+
+### Transitional layout
+
+The current release (v0.2.0) uses a legacy layout where all artifacts live under `.musketeer/runs/<uuid>/`. This layout is deprecated. Future versions will require a SMALL workspace with canonical artifacts in `.small/`.
 
 ---
 
@@ -12,63 +43,11 @@ Musketeer does not replace models, agents, or editors. It governs how work moves
 
 Musketeer operates on a strict three-role model:
 
-1. **Originator**
-   - Intent formation
-   - Scope and constraint definition
-   - Handoff preparation
+1. **Originator** - Intent formation, scope and constraint definition, handoff preparation
+2. **Examiner** - Adversarial validation, assumption testing, drift detection
+3. **Executor** - Bounded execution, artifact production, results for review
 
-2. **Examiner**
-   - Adversarial validation
-   - Assumption testing
-   - Drift detection
-
-3. **Executor**
-   - Bounded execution
-   - Artifact production
-   - Results for review
-
-Each role is isolated.
-Each handoff is explicit.
-All state lives on disk.
-
----
-
-## What Musketeer Is
-
-- A CLI
-- Local-first
-- File-based state
-- Role-driven execution governance
-- Model-agnostic via adapters
-- Built for replay, inspection, and audit
-
----
-
-## What Musketeer Is Not
-
-- Not an agent framework
-- Not a chat wrapper
-- Not an orchestration SDK
-- Not a hosted service
-- Not autonomous
-
-Musketeer does not try to make models smarter. It makes model-driven work more governable.
-
----
-
-## Design Principles
-
-- Explicit handoffs over implicit memory
-- Role separation over model selection
-- Bounded execution over open-ended generation
-- Contracts over conventions
-- Determinism over creativity
-
----
-
-## Status
-
-This repository is under active construction. No public releases yet.
+Each role is isolated. Each handoff is explicit. All state lives on disk.
 
 ---
 
@@ -86,26 +65,26 @@ cargo build
 
 ### Workflow
 
-1. **Initialize a workspace** in the current directory. This creates a `.musketeer/` directory with a config file and a `runs/` folder:
+1. **Initialize a workspace:**
 
    ```sh
    cargo run -- init
    ```
 
-2. **Create a new run.** Each run gets a unique UUID and five YAML state files (intent, constraints, plan, progress, handoff):
+2. **Create a new run:**
 
    ```sh
    cargo run -- run new
    ```
 
-3. **Check run status.** Shows task progress for all runs, or a specific run with `--replay <id>`:
+3. **Check run status:**
 
    ```sh
    cargo run -- run status
    cargo run -- run status --replay <replay-id>
    ```
 
-4. **Validate invariants.** Checks file presence, replay ID consistency, progress sequence integrity, and plan task uniqueness. Validates the latest run by default, or a specific one with `--replay <id>`:
+4. **Validate invariants:**
 
    ```sh
    cargo run -- check

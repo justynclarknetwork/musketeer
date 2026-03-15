@@ -46,6 +46,8 @@ pub fn run(json_mode: bool) -> anyhow::Result<()> {
         verdict_reason: None,
     };
 
+    eprintln!("[deprecated] Creating legacy Musketeer artifacts. Future versions will require a SMALL workspace (.small/).");
+
     write::write_yaml(&layout::intent_path(&root, &replay_id), &intent)?;
     write::write_yaml(&layout::constraints_path(&root, &replay_id), &constraints)?;
     write::write_yaml(&layout::plan_path(&root, &replay_id), &plan)?;
