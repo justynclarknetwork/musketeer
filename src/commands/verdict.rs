@@ -4,12 +4,13 @@ use anyhow::Context;
 use time::OffsetDateTime;
 use time::format_description::well_known::Rfc3339;
 
-use crate::commands::util;
 use crate::error::MusketeerError;
 use crate::fs::write;
 use crate::model::verdict::Verdict;
 use crate::musketeer_namespace;
 use crate::output;
+use crate::small_adapter;
+use crate::workspace_mode::{self, WorkspaceContext};
 
 pub fn run(
     role: String,
@@ -33,7 +34,17 @@ pub fn run(
     }
 
     let root = env::current_dir().context("failed to resolve current dir")?;
-    let replay_id = replay.unwrap_or(util::latest_replay_id(&root)?);
+    let ctx = workspace_mode::resolve(&root)?;
+    let replay_id = workspace_mode::resolve_replay_id(&ctx, replay)?;
+
+    // In SMALL-native mode, optionally read handoff for context (informational only).
+    // Verdict is self-contained and does not depend on handoff content.
+    if let WorkspaceContext::SmallNative { .. } = &ctx {
+        if let Ok(handoff) = small_adapter::load_handoff(&root) {
+            // Handoff note available for context: "{}"
+            let _ = handoff.note;
+        }
+    }
 
     // Write verdict to .musketeer/verdicts/<replayId>.verdict.yml
     musketeer_namespace::ensure_verdicts_dir(&root)?;

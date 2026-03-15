@@ -8,4 +8,6 @@ pub mod model;
 pub mod musketeer_namespace;
 pub mod output;
 pub mod replay_source;
+pub mod small_adapter;
 pub mod small_workspace;
+pub mod workspace_mode;
