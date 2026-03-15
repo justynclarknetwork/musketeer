@@ -51,6 +51,12 @@ pub enum Command {
         #[arg(long)]
         replay: Option<String>,
     },
+    Migrate {
+        #[arg(long)]
+        dry_run: bool,
+        #[arg(long)]
+        force: bool,
+    },
 }
 
 #[derive(Subcommand, Debug)]

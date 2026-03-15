@@ -4,6 +4,7 @@ pub mod error;
 pub mod fs;
 pub mod invariants;
 pub mod legacy_workspace;
+pub mod migration;
 pub mod model;
 pub mod musketeer_namespace;
 pub mod output;
