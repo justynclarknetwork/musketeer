@@ -38,15 +38,13 @@ pub fn run(
             let intent: Intent = read::read_yaml(&layout::intent_path(&root, &replay_id))
                 .map_err(|_| MusketeerError::HandoffInvalid("intent missing".to_string()))?;
             let constraints: Constraints =
-                read::read_yaml(&layout::constraints_path(&root, &replay_id))
-                    .map_err(|_| {
-                        MusketeerError::HandoffInvalid("constraints missing".to_string())
-                    })?;
+                read::read_yaml(&layout::constraints_path(&root, &replay_id)).map_err(|_| {
+                    MusketeerError::HandoffInvalid("constraints missing".to_string())
+                })?;
             let plan: Plan = read::read_yaml(&layout::plan_path(&root, &replay_id))
                 .map_err(|_| MusketeerError::HandoffInvalid("plan missing".to_string()))?;
-            let progress: ProgressLog =
-                read::read_yaml(&layout::progress_path(&root, &replay_id))
-                    .map_err(|_| MusketeerError::HandoffInvalid("progress missing".to_string()))?;
+            let progress: ProgressLog = read::read_yaml(&layout::progress_path(&root, &replay_id))
+                .map_err(|_| MusketeerError::HandoffInvalid("progress missing".to_string()))?;
             (intent, constraints, plan, progress)
         }
     };

@@ -104,17 +104,13 @@ mod tests {
         let tmp = TempDir::new().unwrap();
         let root = tmp.path();
 
-        assert_eq!(
-            packets_dir(root),
-            root.join(".musketeer").join("packets")
-        );
-        assert_eq!(
-            verdicts_dir(root),
-            root.join(".musketeer").join("verdicts")
-        );
+        assert_eq!(packets_dir(root), root.join(".musketeer").join("packets"));
+        assert_eq!(verdicts_dir(root), root.join(".musketeer").join("verdicts"));
         assert_eq!(
             verdict_path(root, "abc-123"),
-            root.join(".musketeer").join("verdicts").join("abc-123.verdict.yml")
+            root.join(".musketeer")
+                .join("verdicts")
+                .join("abc-123.verdict.yml")
         );
         assert_eq!(
             run_dir(root, "abc-123"),
@@ -122,7 +118,10 @@ mod tests {
         );
         assert_eq!(
             execution_log_path(root, "abc-123"),
-            root.join(".musketeer").join("runs").join("abc-123").join("execution-log.yml")
+            root.join(".musketeer")
+                .join("runs")
+                .join("abc-123")
+                .join("execution-log.yml")
         );
     }
 

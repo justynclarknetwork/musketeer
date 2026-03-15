@@ -1,8 +1,8 @@
 use std::env;
 
 use anyhow::Context;
-use time::OffsetDateTime;
 use time::format_description::well_known::Rfc3339;
+use time::OffsetDateTime;
 
 use crate::error::MusketeerError;
 use crate::fs::write;
@@ -50,7 +50,9 @@ pub fn run(
     musketeer_namespace::ensure_verdicts_dir(&root)?;
 
     let now = OffsetDateTime::now_utc();
-    let timestamp = now.format(&Rfc3339).unwrap_or_else(|_| "unknown".to_string());
+    let timestamp = now
+        .format(&Rfc3339)
+        .unwrap_or_else(|_| "unknown".to_string());
 
     let verdict = Verdict {
         kind: "musketeer_verdict".to_string(),

@@ -8,8 +8,8 @@ use std::path::Path;
 
 use anyhow::Context;
 use serde::Serialize;
-use time::OffsetDateTime;
 use time::format_description::well_known::Rfc3339;
+use time::OffsetDateTime;
 
 use crate::fs::layout;
 use crate::model::verdict::Verdict;
@@ -206,7 +206,11 @@ pub fn execute_migration(root: &Path, plan: &MigrationPlan) -> anyhow::Result<Mi
         }
     }
 
-    let files_found: Vec<String> = plan.artifacts_found.iter().map(|a| a.path.clone()).collect();
+    let files_found: Vec<String> = plan
+        .artifacts_found
+        .iter()
+        .map(|a| a.path.clone())
+        .collect();
     let files_archived: Vec<String> = plan
         .artifacts_found
         .iter()
@@ -309,8 +313,7 @@ pub fn convert_artifacts(root: &Path, replay_id: &str) -> anyhow::Result<Convers
     // intent
     let intent_src = run_dir.join("intent.yml");
     if intent_src.is_file() {
-        let raw: serde_yaml::Value =
-            serde_yaml::from_str(&fs::read_to_string(&intent_src)?)?;
+        let raw: serde_yaml::Value = serde_yaml::from_str(&fs::read_to_string(&intent_src)?)?;
         let mut out = serde_yaml::Mapping::new();
         if let Some(v) = raw.get("title") {
             out.insert("title".into(), v.clone());
@@ -331,8 +334,7 @@ pub fn convert_artifacts(root: &Path, replay_id: &str) -> anyhow::Result<Convers
     // constraints
     let constraints_src = run_dir.join("constraints.yml");
     if constraints_src.is_file() {
-        let raw: serde_yaml::Value =
-            serde_yaml::from_str(&fs::read_to_string(&constraints_src)?)?;
+        let raw: serde_yaml::Value = serde_yaml::from_str(&fs::read_to_string(&constraints_src)?)?;
         let mut out = serde_yaml::Mapping::new();
         if let Some(v) = raw.get("scope") {
             out.insert("scope".into(), v.clone());
@@ -363,8 +365,7 @@ pub fn convert_artifacts(root: &Path, replay_id: &str) -> anyhow::Result<Convers
     // plan
     let plan_src = run_dir.join("plan.yml");
     if plan_src.is_file() {
-        let raw: serde_yaml::Value =
-            serde_yaml::from_str(&fs::read_to_string(&plan_src)?)?;
+        let raw: serde_yaml::Value = serde_yaml::from_str(&fs::read_to_string(&plan_src)?)?;
         let mut out = serde_yaml::Mapping::new();
         if let Some(v) = raw.get("tasks") {
             out.insert("tasks".into(), v.clone());
@@ -382,8 +383,7 @@ pub fn convert_artifacts(root: &Path, replay_id: &str) -> anyhow::Result<Convers
     // progress
     let progress_src = run_dir.join("progress.yml");
     if progress_src.is_file() {
-        let raw: serde_yaml::Value =
-            serde_yaml::from_str(&fs::read_to_string(&progress_src)?)?;
+        let raw: serde_yaml::Value = serde_yaml::from_str(&fs::read_to_string(&progress_src)?)?;
         let mut out = serde_yaml::Mapping::new();
         if let Some(v) = raw.get("entries") {
             out.insert("entries".into(), v.clone());
@@ -401,8 +401,7 @@ pub fn convert_artifacts(root: &Path, replay_id: &str) -> anyhow::Result<Convers
     // handoff
     let handoff_src = run_dir.join("handoff.yml");
     if handoff_src.is_file() {
-        let raw: serde_yaml::Value =
-            serde_yaml::from_str(&fs::read_to_string(&handoff_src)?)?;
+        let raw: serde_yaml::Value = serde_yaml::from_str(&fs::read_to_string(&handoff_src)?)?;
         let mut out = serde_yaml::Mapping::new();
         if let Some(v) = raw.get("note") {
             out.insert("note".into(), v.clone());
@@ -417,7 +416,9 @@ pub fn convert_artifacts(root: &Path, replay_id: &str) -> anyhow::Result<Convers
         });
 
         // Extract verdict if present
-        let verdict_val = raw.get("verdict").and_then(|v| v.as_str().map(|s| s.to_string()));
+        let verdict_val = raw
+            .get("verdict")
+            .and_then(|v| v.as_str().map(|s| s.to_string()));
         let verdict_reason = raw
             .get("verdict_reason")
             .and_then(|v| v.as_str().map(|s| s.to_string()));
@@ -458,8 +459,7 @@ fn restructure_musketeer(root: &Path, replay_id: &str) -> anyhow::Result<()> {
     // If progress had entries, create execution-log.yml
     let progress_src = layout::progress_path(root, replay_id);
     if progress_src.is_file() {
-        let raw: serde_yaml::Value =
-            serde_yaml::from_str(&fs::read_to_string(&progress_src)?)?;
+        let raw: serde_yaml::Value = serde_yaml::from_str(&fs::read_to_string(&progress_src)?)?;
         if let Some(entries) = raw.get("entries") {
             let mut log = serde_yaml::Mapping::new();
             log.insert("replay_id".into(), replay_id.into());
@@ -642,11 +642,7 @@ mod tests {
             "replay_id: run-v\nscope:\n  - src/\nnon_goals: []\n",
         )
         .unwrap();
-        fs::write(
-            run_dir.join("plan.yml"),
-            "replay_id: run-v\ntasks: []\n",
-        )
-        .unwrap();
+        fs::write(run_dir.join("plan.yml"), "replay_id: run-v\ntasks: []\n").unwrap();
         fs::write(
             run_dir.join("progress.yml"),
             "replay_id: run-v\nentries: []\n",

@@ -66,7 +66,9 @@ pub fn is_valid(root: &Path) -> bool {
     if !workspace_path(root).is_file() {
         return false;
     }
-    CANONICAL_ARTIFACTS.iter().all(|name| small_dir(root).join(name).is_file())
+    CANONICAL_ARTIFACTS
+        .iter()
+        .all(|name| small_dir(root).join(name).is_file())
 }
 
 /// Returns a list of missing canonical artifacts (empty if all present).

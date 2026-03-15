@@ -76,7 +76,9 @@ pub fn resolve_replay_id(
     cli_replay: Option<String>,
 ) -> anyhow::Result<String> {
     match ctx {
-        WorkspaceContext::SmallNative { replay_id, root, .. } => {
+        WorkspaceContext::SmallNative {
+            replay_id, root, ..
+        } => {
             match (replay_id, cli_replay) {
                 (Some(small_id), Some(cli_id)) => {
                     if small_id != &cli_id {
@@ -96,19 +98,19 @@ pub fn resolve_replay_id(
                 }
             }
         }
-        WorkspaceContext::Legacy { root, .. } => {
-            match cli_replay {
-                Some(id) => Ok(id),
-                None => crate::commands::util::latest_replay_id(root),
-            }
-        }
+        WorkspaceContext::Legacy { root, .. } => match cli_replay {
+            Some(id) => Ok(id),
+            None => crate::commands::util::latest_replay_id(root),
+        },
     }
 }
 
 /// Emit a deprecation warning to stderr for legacy workspace usage.
 pub fn warn_legacy() {
     eprintln!("[deprecated] Legacy workspace detected. SMALL-native mode is preferred. Migration required.");
-    eprintln!("[deprecated] Reading from legacy Musketeer paths. Migrate to a SMALL workspace (.small/).");
+    eprintln!(
+        "[deprecated] Reading from legacy Musketeer paths. Migrate to a SMALL workspace (.small/)."
+    );
 }
 
 #[cfg(test)]

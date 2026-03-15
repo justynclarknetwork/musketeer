@@ -104,7 +104,11 @@ fn run_new_creates_no_legacy_artifacts() {
     setup_small_workspace(tmp.path(), replay_id);
 
     let out = run_cmd(tmp.path(), &["--json", "run", "new"]);
-    assert!(out.status.success(), "run new failed: {}", String::from_utf8_lossy(&out.stderr));
+    assert!(
+        out.status.success(),
+        "run new failed: {}",
+        String::from_utf8_lossy(&out.stderr)
+    );
 
     let musketeer_dir = tmp.path().join(".musketeer");
     let legacy = find_legacy_artifacts(&musketeer_dir);
@@ -127,23 +131,40 @@ fn log_writes_execution_log_not_legacy_progress() {
     let out = run_cmd(
         tmp.path(),
         &[
-            "--json", "log",
-            "--role", "executor",
-            "--kind", "note",
-            "--message", "test entry",
-            "--replay", replay_id,
+            "--json",
+            "log",
+            "--role",
+            "executor",
+            "--kind",
+            "note",
+            "--message",
+            "test entry",
+            "--replay",
+            replay_id,
         ],
     );
-    assert!(out.status.success(), "log failed: {}", String::from_utf8_lossy(&out.stderr));
+    assert!(
+        out.status.success(),
+        "log failed: {}",
+        String::from_utf8_lossy(&out.stderr)
+    );
 
     // Verify execution log exists
-    let exec_log = tmp.path().join(format!(".musketeer/runs/{}/execution-log.yml", replay_id));
+    let exec_log = tmp
+        .path()
+        .join(format!(".musketeer/runs/{}/execution-log.yml", replay_id));
     assert!(exec_log.is_file(), "execution-log.yml should exist");
 
     // Verify it has correct schema
     let content = fs::read_to_string(&exec_log).unwrap();
-    assert!(content.contains("musketeer_execution_log"), "should have correct kind");
-    assert!(content.contains("test entry"), "should contain the logged message");
+    assert!(
+        content.contains("musketeer_execution_log"),
+        "should have correct kind"
+    );
+    assert!(
+        content.contains("test entry"),
+        "should contain the logged message"
+    );
 
     // Verify NO legacy artifacts
     let musketeer_dir = tmp.path().join(".musketeer");
@@ -164,17 +185,28 @@ fn verdict_writes_to_musketeer_verdicts_not_legacy() {
     let out = run_cmd(
         tmp.path(),
         &[
-            "--json", "verdict",
-            "--role", "auditor",
-            "--value", "approve",
-            "--reason", "looks good",
-            "--replay", replay_id,
+            "--json",
+            "verdict",
+            "--role",
+            "auditor",
+            "--value",
+            "approve",
+            "--reason",
+            "looks good",
+            "--replay",
+            replay_id,
         ],
     );
-    assert!(out.status.success(), "verdict failed: {}", String::from_utf8_lossy(&out.stderr));
+    assert!(
+        out.status.success(),
+        "verdict failed: {}",
+        String::from_utf8_lossy(&out.stderr)
+    );
 
     // Verdict should be in .musketeer/verdicts/
-    let verdict_path = tmp.path().join(format!(".musketeer/verdicts/{}.verdict.yml", replay_id));
+    let verdict_path = tmp
+        .path()
+        .join(format!(".musketeer/verdicts/{}.verdict.yml", replay_id));
     assert!(verdict_path.is_file(), "verdict file should exist");
 
     // No legacy artifacts
@@ -194,7 +226,11 @@ fn check_creates_no_legacy_artifacts() {
     setup_small_workspace(tmp.path(), replay_id);
 
     let out = run_cmd(tmp.path(), &["check", "--replay", replay_id]);
-    assert!(out.status.success(), "check failed: {}", String::from_utf8_lossy(&out.stderr));
+    assert!(
+        out.status.success(),
+        "check failed: {}",
+        String::from_utf8_lossy(&out.stderr)
+    );
 
     let musketeer_dir = tmp.path().join(".musketeer");
     let legacy = find_legacy_artifacts(&musketeer_dir);
@@ -213,9 +249,15 @@ fn packet_creates_no_legacy_artifacts() {
 
     let out = run_cmd(
         tmp.path(),
-        &["--json", "packet", "--role", "executor", "--replay", replay_id],
+        &[
+            "--json", "packet", "--role", "executor", "--replay", replay_id,
+        ],
     );
-    assert!(out.status.success(), "packet failed: {}", String::from_utf8_lossy(&out.stderr));
+    assert!(
+        out.status.success(),
+        "packet failed: {}",
+        String::from_utf8_lossy(&out.stderr)
+    );
 
     let musketeer_dir = tmp.path().join(".musketeer");
     let legacy = find_legacy_artifacts(&musketeer_dir);
@@ -234,44 +276,68 @@ fn full_workflow_no_legacy_artifacts() {
 
     // run new
     let out = run_cmd(tmp.path(), &["--json", "run", "new"]);
-    assert!(out.status.success(), "run new failed: {}", String::from_utf8_lossy(&out.stderr));
+    assert!(
+        out.status.success(),
+        "run new failed: {}",
+        String::from_utf8_lossy(&out.stderr)
+    );
 
     // log
     let out = run_cmd(
         tmp.path(),
         &[
-            "--json", "log",
-            "--role", "executor",
-            "--kind", "note",
-            "--message", "doing work",
-            "--replay", replay_id,
+            "--json",
+            "log",
+            "--role",
+            "executor",
+            "--kind",
+            "note",
+            "--message",
+            "doing work",
+            "--replay",
+            replay_id,
         ],
     );
-    assert!(out.status.success(), "log failed: {}", String::from_utf8_lossy(&out.stderr));
+    assert!(
+        out.status.success(),
+        "log failed: {}",
+        String::from_utf8_lossy(&out.stderr)
+    );
 
     // packet
     let out = run_cmd(
         tmp.path(),
-        &["--json", "packet", "--role", "executor", "--replay", replay_id],
+        &[
+            "--json", "packet", "--role", "executor", "--replay", replay_id,
+        ],
     );
-    assert!(out.status.success(), "packet failed: {}", String::from_utf8_lossy(&out.stderr));
+    assert!(
+        out.status.success(),
+        "packet failed: {}",
+        String::from_utf8_lossy(&out.stderr)
+    );
 
     // verdict
     let out = run_cmd(
         tmp.path(),
         &[
-            "--json", "verdict",
-            "--role", "auditor",
-            "--value", "approve",
-            "--reason", "all good",
+            "--json", "verdict", "--role", "auditor", "--value", "approve", "--reason", "all good",
             "--replay", replay_id,
         ],
     );
-    assert!(out.status.success(), "verdict failed: {}", String::from_utf8_lossy(&out.stderr));
+    assert!(
+        out.status.success(),
+        "verdict failed: {}",
+        String::from_utf8_lossy(&out.stderr)
+    );
 
     // check
     let out = run_cmd(tmp.path(), &["check", "--replay", replay_id]);
-    assert!(out.status.success(), "check failed: {}", String::from_utf8_lossy(&out.stderr));
+    assert!(
+        out.status.success(),
+        "check failed: {}",
+        String::from_utf8_lossy(&out.stderr)
+    );
 
     // Final scan: NO legacy artifacts anywhere under .musketeer/
     let musketeer_dir = tmp.path().join(".musketeer");
@@ -284,8 +350,13 @@ fn full_workflow_no_legacy_artifacts() {
 
     // Verify execution log was written
     // run new creates a UUID run dir, but log uses the replay_id
-    let exec_log = tmp.path().join(format!(".musketeer/runs/{}/execution-log.yml", replay_id));
-    assert!(exec_log.is_file(), "execution-log.yml should exist after log command");
+    let exec_log = tmp
+        .path()
+        .join(format!(".musketeer/runs/{}/execution-log.yml", replay_id));
+    assert!(
+        exec_log.is_file(),
+        "execution-log.yml should exist after log command"
+    );
 }
 
 #[test]
@@ -300,17 +371,28 @@ fn execution_log_schema_is_correct() {
         let out = run_cmd(
             tmp.path(),
             &[
-                "--json", "log",
-                "--role", "executor",
-                "--kind", "note",
-                "--message", msg,
-                "--replay", replay_id,
+                "--json",
+                "log",
+                "--role",
+                "executor",
+                "--kind",
+                "note",
+                "--message",
+                msg,
+                "--replay",
+                replay_id,
             ],
         );
-        assert!(out.status.success(), "log failed: {}", String::from_utf8_lossy(&out.stderr));
+        assert!(
+            out.status.success(),
+            "log failed: {}",
+            String::from_utf8_lossy(&out.stderr)
+        );
     }
 
-    let exec_log_path = tmp.path().join(format!(".musketeer/runs/{}/execution-log.yml", replay_id));
+    let exec_log_path = tmp
+        .path()
+        .join(format!(".musketeer/runs/{}/execution-log.yml", replay_id));
     let content = fs::read_to_string(&exec_log_path).unwrap();
 
     assert!(content.contains("kind: musketeer_execution_log"));

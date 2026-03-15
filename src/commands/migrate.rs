@@ -64,7 +64,10 @@ pub fn run(json_mode: bool, dry_run: bool, force: bool) -> anyhow::Result<()> {
             for artifact in &plan.artifacts_found {
                 println!("  {} (run: {})", artifact.path, artifact.run_id);
             }
-            println!("Archive directory: .musketeer/legacy/{}/", plan.archive_timestamp);
+            println!(
+                "Archive directory: .musketeer/legacy/{}/",
+                plan.archive_timestamp
+            );
             if plan.all_run_ids.len() > 1 {
                 let others: Vec<&str> = plan
                     .all_run_ids
@@ -72,10 +75,7 @@ pub fn run(json_mode: bool, dry_run: bool, force: bool) -> anyhow::Result<()> {
                     .filter(|id| *id != &plan.replay_id)
                     .map(|s| s.as_str())
                     .collect();
-                println!(
-                    "Other runs (archive only): {}",
-                    others.join(", ")
-                );
+                println!("Other runs (archive only): {}", others.join(", "));
             }
             println!("\nNo files were created (dry run).");
         }
@@ -94,8 +94,7 @@ pub fn run(json_mode: bool, dry_run: bool, force: bool) -> anyhow::Result<()> {
     }
 
     if json_mode {
-        let report_json =
-            serde_json::to_value(&report).context("failed to serialize report")?;
+        let report_json = serde_json::to_value(&report).context("failed to serialize report")?;
         output::emit_ok(
             json_mode,
             Some(&report.replay_id),
@@ -109,10 +108,7 @@ pub fn run(json_mode: bool, dry_run: bool, force: bool) -> anyhow::Result<()> {
         if !report.fields_ambiguous.is_empty() {
             println!("Ambiguous fields:");
             for f in &report.fields_ambiguous {
-                println!(
-                    "  {}.{}: {} ({})",
-                    f.source, f.field, f.reason, f.action
-                );
+                println!("  {}.{}: {} ({})", f.source, f.field, f.reason, f.action);
             }
         }
         if !report.warnings.is_empty() {

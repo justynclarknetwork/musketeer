@@ -50,11 +50,7 @@ fn setup_small_workspace(root: &Path, replay_id: &str) {
         "entries:\n  - seq: 1\n    ts: '2026-01-01T00:00:00Z'\n    role: executor\n    kind: note\n    message: init\n    summary: init\n",
     )
     .unwrap();
-    fs::write(
-        small_dir.join("handoff.small.yml"),
-        "note: Ready\n",
-    )
-    .unwrap();
+    fs::write(small_dir.join("handoff.small.yml"), "note: Ready\n").unwrap();
     // Also create .musketeer/ for Musketeer execution state
     fs::create_dir_all(root.join(".musketeer/runs")).unwrap();
 }
@@ -72,12 +68,26 @@ fn packet_reads_from_small_workspace() {
 
     let out = run_cmd(
         tmp.path(),
-        &["--json", "packet", "--role", "executor", "--replay", replay_id],
+        &[
+            "--json", "packet", "--role", "executor", "--replay", replay_id,
+        ],
     );
     let stdout = String::from_utf8_lossy(&out.stdout);
-    assert!(out.status.success(), "packet failed: {}", String::from_utf8_lossy(&out.stderr));
-    assert!(stdout.contains("SMALL Intent"), "expected SMALL Intent in output: {}", stdout);
-    assert!(stdout.contains("SMALL Outcome"), "expected SMALL Outcome in output: {}", stdout);
+    assert!(
+        out.status.success(),
+        "packet failed: {}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    assert!(
+        stdout.contains("SMALL Intent"),
+        "expected SMALL Intent in output: {}",
+        stdout
+    );
+    assert!(
+        stdout.contains("SMALL Outcome"),
+        "expected SMALL Outcome in output: {}",
+        stdout
+    );
 }
 
 #[test]
@@ -87,7 +97,11 @@ fn check_validates_small_artifacts() {
     setup_small_workspace(tmp.path(), replay_id);
 
     let out = run_cmd(tmp.path(), &["check", "--replay", replay_id]);
-    assert!(out.status.success(), "check failed: {}", String::from_utf8_lossy(&out.stderr));
+    assert!(
+        out.status.success(),
+        "check failed: {}",
+        String::from_utf8_lossy(&out.stderr)
+    );
 }
 
 #[test]
@@ -99,9 +113,16 @@ fn check_fails_with_missing_small_artifact() {
     fs::remove_file(tmp.path().join(".small/plan.small.yml")).unwrap();
 
     let out = run_cmd(tmp.path(), &["check", "--replay", replay_id]);
-    assert!(!out.status.success(), "check should fail with missing artifact");
+    assert!(
+        !out.status.success(),
+        "check should fail with missing artifact"
+    );
     let stderr = String::from_utf8_lossy(&out.stderr);
-    assert!(stderr.contains("missing"), "expected 'missing' in error: {}", stderr);
+    assert!(
+        stderr.contains("missing"),
+        "expected 'missing' in error: {}",
+        stderr
+    );
 }
 
 #[test]
@@ -111,10 +132,18 @@ fn run_new_in_small_mode_does_not_create_artifacts() {
     setup_small_workspace(tmp.path(), replay_id);
 
     let out = run_cmd(tmp.path(), &["--json", "run", "new"]);
-    assert!(out.status.success(), "run new failed: {}", String::from_utf8_lossy(&out.stderr));
+    assert!(
+        out.status.success(),
+        "run new failed: {}",
+        String::from_utf8_lossy(&out.stderr)
+    );
 
     let stdout = String::from_utf8_lossy(&out.stdout);
-    assert!(stdout.contains("small_native"), "expected small_native mode: {}", stdout);
+    assert!(
+        stdout.contains("small_native"),
+        "expected small_native mode: {}",
+        stdout
+    );
 
     // Verify NO legacy artifacts were created
     let runs_dir = tmp.path().join(".musketeer/runs");
@@ -155,7 +184,10 @@ fn replay_id_conflict_fails() {
         tmp.path(),
         &["packet", "--role", "executor", "--replay", "wrong-id"],
     );
-    assert!(!out.status.success(), "should fail with conflicting replay ID");
+    assert!(
+        !out.status.success(),
+        "should fail with conflicting replay ID"
+    );
     let stderr = String::from_utf8_lossy(&out.stderr);
     assert!(
         stderr.contains("conflict"),
@@ -171,7 +203,15 @@ fn run_status_small_native_shows_plan() {
     setup_small_workspace(tmp.path(), replay_id);
 
     let out = run_cmd(tmp.path(), &["--json", "run", "status"]);
-    assert!(out.status.success(), "run status failed: {}", String::from_utf8_lossy(&out.stderr));
+    assert!(
+        out.status.success(),
+        "run status failed: {}",
+        String::from_utf8_lossy(&out.stderr)
+    );
     let stdout = String::from_utf8_lossy(&out.stdout);
-    assert!(stdout.contains("small_native"), "expected small_native: {}", stdout);
+    assert!(
+        stdout.contains("small_native"),
+        "expected small_native: {}",
+        stdout
+    );
 }

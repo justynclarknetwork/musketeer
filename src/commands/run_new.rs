@@ -29,9 +29,7 @@ pub fn run(json_mode: bool) -> anyhow::Result<()> {
                 .into());
             }
 
-            let rid = replay_id
-                .as_deref()
-                .unwrap_or_else(|| "default");
+            let rid = replay_id.as_deref().unwrap_or_else(|| "default");
             let rid = if rid == "default" {
                 Uuid::new_v4().to_string()
             } else {

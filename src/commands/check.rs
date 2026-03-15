@@ -33,9 +33,7 @@ pub fn run(replay: Option<String>, json_mode: bool) -> anyhow::Result<()> {
             small_adapter::load_intent(&root)
                 .map_err(|e| MusketeerError::HandoffInvalid(format!("intent parse: {}", e)))?;
             small_adapter::load_constraints(&root)
-                .map_err(|e| {
-                    MusketeerError::HandoffInvalid(format!("constraints parse: {}", e))
-                })?;
+                .map_err(|e| MusketeerError::HandoffInvalid(format!("constraints parse: {}", e)))?;
             small_adapter::load_plan(&root)
                 .map_err(|e| MusketeerError::HandoffInvalid(format!("plan parse: {}", e)))?;
             small_adapter::load_progress(&root)
@@ -59,9 +57,7 @@ pub fn run(replay: Option<String>, json_mode: bool) -> anyhow::Result<()> {
 
             let result = check_run(&root, &replay_id);
             if !result.ok {
-                return Err(
-                    MusketeerError::InvariantFailed(result.errors.join("; ")).into()
-                );
+                return Err(MusketeerError::InvariantFailed(result.errors.join("; ")).into());
             }
 
             // Check verdict (new location first, then legacy handoff)
@@ -80,9 +76,7 @@ pub fn run(replay: Option<String>, json_mode: bool) -> anyhow::Result<()> {
             };
 
             if rejected {
-                return Err(
-                    MusketeerError::VerdictRejected("auditor rejected".to_string()).into(),
-                );
+                return Err(MusketeerError::VerdictRejected("auditor rejected".to_string()).into());
             }
         }
     }
