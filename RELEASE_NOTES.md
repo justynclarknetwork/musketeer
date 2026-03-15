@@ -1,4 +1,4 @@
-# Release Notes - v0.1.0
+# Release Notes - v0.2.0
 
 ## What this release guarantees
 
@@ -31,7 +31,7 @@
 
 ## Verified behavior
 
-The following was run against the v0.1.0 binary and passed:
+The following was run against the v0.2.0 binary and passed:
 
 ```
 cargo test

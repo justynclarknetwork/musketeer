@@ -40,7 +40,10 @@ fn init_creates_workspace_files() {
     assert_eq!(v["tool"], "musketeer");
     assert_eq!(v["status"], "ok");
     assert!(cwd.join(".musketeer").exists(), ".musketeer dir missing");
-    assert!(cwd.join(".musketeer/musketeer.yml").exists(), "musketeer.yml missing");
+    assert!(
+        cwd.join(".musketeer/musketeer.yml").exists(),
+        "musketeer.yml missing"
+    );
     assert!(cwd.join(".musketeer/runs").exists(), "runs dir missing");
 }
 
@@ -67,7 +70,13 @@ fn run_new_creates_artifacts() {
 
     let run_dir = cwd.join(".musketeer/runs").join(&replay_id);
     assert!(run_dir.exists(), "run dir missing");
-    for f in &["intent.yml", "constraints.yml", "plan.yml", "progress.yml", "handoff.yml"] {
+    for f in &[
+        "intent.yml",
+        "constraints.yml",
+        "plan.yml",
+        "progress.yml",
+        "handoff.yml",
+    ] {
         assert!(run_dir.join(f).exists(), "{f} missing");
     }
 }
@@ -81,7 +90,11 @@ fn run_new_fails_without_workspace() {
     assert_eq!(c, 30);
     let v: serde_json::Value = serde_json::from_str(&out).expect("json");
     assert_eq!(v["status"], "error");
-    assert!(v["errors"].as_array().unwrap().iter().any(|e| e == "E_WORKSPACE_INVALID"));
+    assert!(v["errors"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|e| e == "E_WORKSPACE_INVALID"));
 }
 
 // --- run status ---
@@ -132,7 +145,11 @@ fn check_fails_no_workspace() {
     let (c, out, _) = run(&["check", "--json"], cwd);
     assert_eq!(c, 30);
     let v: serde_json::Value = serde_json::from_str(&out).expect("json");
-    assert!(v["errors"].as_array().unwrap().iter().any(|e| e == "E_WORKSPACE_INVALID"));
+    assert!(v["errors"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|e| e == "E_WORKSPACE_INVALID"));
 }
 
 // --- packet ---
@@ -143,7 +160,12 @@ fn packet_returns_role_and_intent() {
     let cwd = td.path();
     let replay_id = setup(cwd);
 
-    let (c, out, _) = run(&["packet", "--role", "executor", "--replay", &replay_id, "--json"], cwd);
+    let (c, out, _) = run(
+        &[
+            "packet", "--role", "executor", "--replay", &replay_id, "--json",
+        ],
+        cwd,
+    );
     assert_eq!(c, 0);
     let v: serde_json::Value = serde_json::from_str(&out).expect("json");
     assert_eq!(v["role"], "executor");
@@ -159,12 +181,23 @@ fn packet_fails_invalid_role() {
     let replay_id = setup(cwd);
 
     let (c, out, _) = run(
-        &["packet", "--role", "not-a-role", "--replay", &replay_id, "--json"],
+        &[
+            "packet",
+            "--role",
+            "not-a-role",
+            "--replay",
+            &replay_id,
+            "--json",
+        ],
         cwd,
     );
     assert_eq!(c, 21);
     let v: serde_json::Value = serde_json::from_str(&out).expect("json");
-    assert!(v["errors"].as_array().unwrap().iter().any(|e| e == "E_ROLE_VIOLATION"));
+    assert!(v["errors"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|e| e == "E_ROLE_VIOLATION"));
 }
 
 // --- log ---
@@ -176,7 +209,18 @@ fn log_appends_entry_with_seq() {
     let replay_id = setup(cwd);
 
     let (c, out, _) = run(
-        &["log", "--role", "executor", "--kind", "note", "--message", "step done", "--replay", &replay_id, "--json"],
+        &[
+            "log",
+            "--role",
+            "executor",
+            "--kind",
+            "note",
+            "--message",
+            "step done",
+            "--replay",
+            &replay_id,
+            "--json",
+        ],
         cwd,
     );
     assert_eq!(c, 0);
@@ -192,12 +236,27 @@ fn log_fails_invalid_kind() {
     let replay_id = setup(cwd);
 
     let (c, out, _) = run(
-        &["log", "--role", "executor", "--kind", "bad-kind", "--message", "x", "--replay", &replay_id, "--json"],
+        &[
+            "log",
+            "--role",
+            "executor",
+            "--kind",
+            "bad-kind",
+            "--message",
+            "x",
+            "--replay",
+            &replay_id,
+            "--json",
+        ],
         cwd,
     );
     assert_eq!(c, 40);
     let v: serde_json::Value = serde_json::from_str(&out).expect("json");
-    assert!(v["errors"].as_array().unwrap().iter().any(|e| e == "E_INVALID_INPUT"));
+    assert!(v["errors"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|e| e == "E_INVALID_INPUT"));
 }
 
 #[test]
@@ -207,12 +266,27 @@ fn log_fails_invalid_role() {
     let replay_id = setup(cwd);
 
     let (c, out, _) = run(
-        &["log", "--role", "bad-role", "--kind", "note", "--message", "x", "--replay", &replay_id, "--json"],
+        &[
+            "log",
+            "--role",
+            "bad-role",
+            "--kind",
+            "note",
+            "--message",
+            "x",
+            "--replay",
+            &replay_id,
+            "--json",
+        ],
         cwd,
     );
     assert_eq!(c, 21);
     let v: serde_json::Value = serde_json::from_str(&out).expect("json");
-    assert!(v["errors"].as_array().unwrap().iter().any(|e| e == "E_ROLE_VIOLATION"));
+    assert!(v["errors"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|e| e == "E_ROLE_VIOLATION"));
 }
 
 // --- verdict ---
@@ -224,7 +298,18 @@ fn verdict_records_approve() {
     let replay_id = setup(cwd);
 
     let (c, out, _) = run(
-        &["verdict", "--role", "auditor", "--value", "approve", "--reason", "looks good", "--replay", &replay_id, "--json"],
+        &[
+            "verdict",
+            "--role",
+            "auditor",
+            "--value",
+            "approve",
+            "--reason",
+            "looks good",
+            "--replay",
+            &replay_id,
+            "--json",
+        ],
         cwd,
     );
     assert_eq!(c, 0);
@@ -239,12 +324,19 @@ fn verdict_fails_non_auditor() {
     let replay_id = setup(cwd);
 
     let (c, out, _) = run(
-        &["verdict", "--role", "executor", "--value", "approve", "--reason", "x", "--replay", &replay_id, "--json"],
+        &[
+            "verdict", "--role", "executor", "--value", "approve", "--reason", "x", "--replay",
+            &replay_id, "--json",
+        ],
         cwd,
     );
     assert_eq!(c, 21);
     let v: serde_json::Value = serde_json::from_str(&out).expect("json");
-    assert!(v["errors"].as_array().unwrap().iter().any(|e| e == "E_ROLE_VIOLATION"));
+    assert!(v["errors"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|e| e == "E_ROLE_VIOLATION"));
 }
 
 #[test]
@@ -254,12 +346,19 @@ fn verdict_fails_invalid_value() {
     let replay_id = setup(cwd);
 
     let (c, out, _) = run(
-        &["verdict", "--role", "auditor", "--value", "maybe", "--reason", "x", "--replay", &replay_id, "--json"],
+        &[
+            "verdict", "--role", "auditor", "--value", "maybe", "--reason", "x", "--replay",
+            &replay_id, "--json",
+        ],
         cwd,
     );
     assert_eq!(c, 40);
     let v: serde_json::Value = serde_json::from_str(&out).expect("json");
-    assert!(v["errors"].as_array().unwrap().iter().any(|e| e == "E_INVALID_INPUT"));
+    assert!(v["errors"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|e| e == "E_INVALID_INPUT"));
 }
 
 #[test]
@@ -270,12 +369,18 @@ fn verdict_fails_no_run_exists() {
     run(&["init", "--json"], cwd);
     // No run new - no runs exist
     let (c, out, _) = run(
-        &["verdict", "--role", "auditor", "--value", "approve", "--reason", "x", "--json"],
+        &[
+            "verdict", "--role", "auditor", "--value", "approve", "--reason", "x", "--json",
+        ],
         cwd,
     );
     assert_eq!(c, 30);
     let v: serde_json::Value = serde_json::from_str(&out).expect("json");
-    assert!(v["errors"].as_array().unwrap().iter().any(|e| e == "E_WORKSPACE_INVALID"));
+    assert!(v["errors"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .any(|e| e == "E_WORKSPACE_INVALID"));
 }
 
 // --- full workflow ---
