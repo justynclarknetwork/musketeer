@@ -4,11 +4,9 @@ Musketeer is the trio execution harness for SMALL-governed workspaces.
 
 SMALL defines canonical execution state. Musketeer runs role-separated originator, examiner, and executor workflows against that state, adding packets, verdicts, and execution receipts without redefining the base contract.
 
----
-
 ## Architecture
 
-Musketeer operates on a layered workspace model:
+Musketeer operates on a two-namespace workspace model:
 
 ### `.small/` - Canonical state (owned by SMALL)
 
@@ -29,77 +27,88 @@ Contains Musketeer-specific execution state:
 
 - `musketeer.yml` - workspace configuration
 - `packets/` - role context packets
-- `verdicts/` - auditor verdict records
-- `runs/` - execution run history
-- `bridge/` - bridge execution logs
+- `verdicts/<replayId>.verdict.yml` - auditor verdict records
+- `runs/<replayId>/execution-log.yml` - execution logs
 
-### Transitional layout
+### Canonical file tree
 
-The current release (v0.2.0) uses a legacy layout where all artifacts live under `.musketeer/runs/<uuid>/`. This layout is deprecated. Future versions will require a SMALL workspace with canonical artifacts in `.small/`.
+```
+.small/
+  workspace.small.yml
+  intent.small.yml
+  constraints.small.yml
+  plan.small.yml
+  progress.small.yml
+  handoff.small.yml
 
----
+.musketeer/
+  musketeer.yml
+  packets/
+  verdicts/
+    <replayId>.verdict.yml
+  runs/
+    <replayId>/
+      execution-log.yml
+```
 
-## Core Idea
-
-Musketeer operates on a strict three-role model:
-
-1. **Originator** - Intent formation, scope and constraint definition, handoff preparation
-2. **Examiner** - Adversarial validation, assumption testing, drift detection
-3. **Executor** - Bounded execution, artifact production, results for review
-
-Each role is isolated. Each handoff is explicit. All state lives on disk.
-
----
-
-## Prerequisites
-
-- [Rust](https://www.rust-lang.org/tools/install) (edition 2021, toolchain 1.85+)
-
-## Getting Started
-
-Build the CLI:
+## Quickstart
 
 ```sh
 cargo build
 ```
 
-### Workflow
+Initialize a workspace (bootstraps `.small/` if missing, creates `.musketeer/`):
 
-1. **Initialize a workspace:**
+```sh
+musketeer init
+```
 
-   ```sh
-   cargo run -- init
-   ```
+Create a run, generate packets, log progress, record a verdict, and validate:
 
-2. **Create a new run:**
+```sh
+musketeer run new
+musketeer packet --role planner
+musketeer log --role executor --kind note --message "completed task 1"
+musketeer verdict --role auditor --value approve --reason "all checks passed"
+musketeer check
+```
 
-   ```sh
-   cargo run -- run new
-   ```
+## Migration
 
-3. **Check run status:**
+Legacy workspaces (artifacts under `.musketeer/runs/`) can be converted to SMALL-native layout:
 
-   ```sh
-   cargo run -- run status
-   cargo run -- run status --replay <replay-id>
-   ```
+```sh
+musketeer migrate            # convert in place
+musketeer migrate --dry-run  # preview without changes
+```
 
-4. **Validate invariants:**
+SMALL-native is the canonical model going forward. Legacy shadow artifacts are deprecated.
 
-   ```sh
-   cargo run -- check
-   cargo run -- check --replay <replay-id>
-   ```
+## Commands
+
+| Command | Description |
+|---------|-------------|
+| `init` | Bootstrap `.small/` if missing, create `.musketeer/` |
+| `run new` | Create a new execution run in `.musketeer/runs/` |
+| `run status` | Show run state (workspace-mode-aware) |
+| `check` | Validate SMALL state and Musketeer execution state |
+| `packet` | Read from `.small/`, generate role context packets |
+| `log` | Read SMALL progress, write execution-log.yml in `.musketeer/runs/` |
+| `verdict` | Write auditor verdict to `.musketeer/verdicts/` |
+| `migrate` | Convert legacy workspaces to SMALL-native layout |
+
+All commands support `--json` for machine-readable output and `--replay <id>` where applicable.
+
+## Prerequisites
+
+- [Rust](https://www.rust-lang.org/tools/install) 1.85+
 
 ## Development
 
 ```sh
 cargo fmt          # format code
 cargo test         # run all tests
-cargo test <name>  # run a single test by name
 ```
-
----
 
 ## License
 
