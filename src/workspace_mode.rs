@@ -107,6 +107,7 @@ pub fn resolve_replay_id(
 
 /// Emit a deprecation warning to stderr for legacy workspace usage.
 pub fn warn_legacy() {
+    eprintln!("[deprecated] Legacy workspace detected. SMALL-native mode is preferred. Migration required.");
     eprintln!("[deprecated] Reading from legacy Musketeer paths. Migrate to a SMALL workspace (.small/).");
 }
 

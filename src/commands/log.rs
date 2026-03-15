@@ -6,9 +6,10 @@ use time::OffsetDateTime;
 
 use crate::error::MusketeerError;
 use crate::fs::{layout, read, write};
+use crate::model::execution_log::{ExecutionEntry, ExecutionLog};
 use crate::model::progress::{ProgressEntry, ProgressLog};
+use crate::musketeer_namespace;
 use crate::output;
-use crate::small_adapter;
 use crate::workspace_mode::{self, WorkspaceContext};
 
 pub fn run(
@@ -28,49 +29,76 @@ pub fn run(
     let ctx = workspace_mode::resolve(&root)?;
     let replay_id = workspace_mode::resolve_replay_id(&ctx, replay)?;
 
-    // Read existing progress
-    let mut progress: ProgressLog = match &ctx {
-        WorkspaceContext::SmallNative { .. } => {
-            small_adapter::read_progress(&root, &replay_id)
-                .map_err(|e| MusketeerError::HandoffInvalid(format!("progress: {}", e)))?
-        }
-        WorkspaceContext::Legacy { .. } => {
-            workspace_mode::warn_legacy();
-            let path = layout::progress_path(&root, &replay_id);
-            read::read_yaml(&path)
-                .map_err(|_| MusketeerError::HandoffInvalid("progress missing".to_string()))?
-        }
-    };
-
-    let next_seq = progress.entries.last().map(|e| e.seq + 1).unwrap_or(1);
     let ts = OffsetDateTime::now_utc()
         .format(&Rfc3339)
         .context("failed to format timestamp")?;
-    progress.entries.push(ProgressEntry {
-        seq: next_seq,
-        ts,
-        role,
-        kind: kind.clone(),
-        message: message.clone(),
-        summary: message,
-    });
 
-    // TODO: In SMALL-native mode, writing progress to the legacy path is a
-    // transitional measure. This must move to either:
-    //   (a) writing to `.small/progress.small.yml` if SMALL CLI allows external writes, or
-    //   (b) a Musketeer-namespaced execution log under `.musketeer/runs/<replayId>/`
-    // For now, always write to the legacy location.
-    let write_path = layout::progress_path(&root, &replay_id);
-    write::write_yaml(&write_path, &progress)?;
+    match &ctx {
+        WorkspaceContext::SmallNative { .. } => {
+            // Read existing execution log or create new one
+            let log_path = musketeer_namespace::execution_log_path(&root, &replay_id);
+            let mut exec_log: ExecutionLog = if log_path.is_file() {
+                read::read_yaml(&log_path).unwrap_or_else(|_| ExecutionLog::new(&replay_id))
+            } else {
+                ExecutionLog::new(&replay_id)
+            };
 
-    if json_mode {
-        output::emit_ok(
-            json_mode,
-            Some(&replay_id),
-            serde_json::json!({"seq": next_seq, "kind": kind}),
-        );
-    } else {
-        println!("logged entry {next_seq}");
+            let next_seq = exec_log.entries.last().map(|e| e.seq + 1).unwrap_or(1);
+            exec_log.entries.push(ExecutionEntry {
+                seq: next_seq,
+                ts,
+                role,
+                kind: kind.clone(),
+                message: message.clone(),
+            });
+
+            // Ensure run dir exists and write execution log
+            let run_dir = musketeer_namespace::run_dir(&root, &replay_id);
+            write::ensure_dir(&run_dir)?;
+            write::write_yaml(&log_path, &exec_log)?;
+
+            if json_mode {
+                output::emit_ok(
+                    json_mode,
+                    Some(&replay_id),
+                    serde_json::json!({"seq": next_seq, "kind": kind}),
+                );
+            } else {
+                println!("logged entry {next_seq}");
+            }
+        }
+        WorkspaceContext::Legacy { .. } => {
+            workspace_mode::warn_legacy();
+            eprintln!("[deprecated] Legacy workspace detected. SMALL-native mode is preferred. Migration required.");
+
+            // Read existing progress
+            let path = layout::progress_path(&root, &replay_id);
+            let mut progress: ProgressLog = read::read_yaml(&path)
+                .map_err(|_| MusketeerError::HandoffInvalid("progress missing".to_string()))?;
+
+            let next_seq = progress.entries.last().map(|e| e.seq + 1).unwrap_or(1);
+            progress.entries.push(ProgressEntry {
+                seq: next_seq,
+                ts,
+                role,
+                kind: kind.clone(),
+                message: message.clone(),
+                summary: message,
+            });
+
+            let write_path = layout::progress_path(&root, &replay_id);
+            write::write_yaml(&write_path, &progress)?;
+
+            if json_mode {
+                output::emit_ok(
+                    json_mode,
+                    Some(&replay_id),
+                    serde_json::json!({"seq": next_seq, "kind": kind}),
+                );
+            } else {
+                println!("logged entry {next_seq}");
+            }
+        }
     }
 
     Ok(())
