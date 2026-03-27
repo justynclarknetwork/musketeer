@@ -19,7 +19,7 @@ When no `--replay` is specified, the lexicographically last run ID is selected a
 
 ## Architecture
 
-Musketeer is a governed execution harness for role-separated AI work. It structures planning, challenge, execution, and review into explicit stages with clear handoffs, bounded loops, and auditable outcomes. All state lives on disk in a `.musketeer/` directory.
+Musketeer is the public trio topology pack for role-separated AI work. It structures planning, challenge, execution, and review into explicit stages with clear handoffs, bounded loops, and auditable outcomes. All state lives on disk in a `.musketeer/` directory.
 
 ### Three-Role Model
 

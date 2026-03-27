@@ -5,9 +5,9 @@
 [![Rust](https://img.shields.io/badge/rust-edition%202021-orange)](https://www.rust-lang.org)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-Musketeer is the trio execution harness for SMALL-governed workspaces.
+Musketeer is the public trio topology pack for SMALL-governed workspaces.
 
-SMALL defines canonical execution state. Musketeer runs role-separated originator, examiner, and executor workflows against that state, adding packets, verdicts, and execution receipts without redefining the base contract.
+SMALL defines canonical execution state. Musketeer packages role-separated originator, examiner, and executor workflows against that state, adding packets, verdicts, and execution receipts without redefining the base contract.
 
 ## Architecture
 
