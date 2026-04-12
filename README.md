@@ -1,9 +1,9 @@
 # Musketeer
 
 [![CI](https://github.com/justynclarknetwork/musketeer/actions/workflows/ci.yml/badge.svg)](https://github.com/justynclarknetwork/musketeer/actions/workflows/ci.yml)
-[![Release](https://img.shields.io/github/v/release/justynclarknetwork/musketeer)](https://github.com/justynclarknetwork/musketeer/releases/tag/v0.3.0)
+[![Release](https://img.shields.io/github/v/release/justynclarknetwork/musketeer)](https://github.com/justynclarknetwork/musketeer/releases/latest)
 [![Rust](https://img.shields.io/badge/rust-edition%202021-orange)](https://www.rust-lang.org)
-[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![License](https://img.shields.io/github/license/justynclarknetwork/musketeer)](LICENSE)
 
 Musketeer is the public trio topology pack for governed work.
 
