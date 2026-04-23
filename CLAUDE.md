@@ -19,7 +19,7 @@ When no `--replay` is specified, the lexicographically last run ID is selected a
 
 ## Architecture
 
-Musketeer is the public trio topology pack for governed work. It structures planning, challenge, execution, and review into explicit stages with clear handoffs, bounded loops, and auditable outcomes. All state lives on disk in a `.musketeer/` directory.
+Musketeer is a SMALL-native execution harness CLI for the Musketeer trio model. It structures planning, challenge, execution, and review into explicit stages with clear handoffs, bounded loops, and auditable outcomes. Canonical state lives in `.small/`, while Musketeer-owned execution artifacts live in `.musketeer/`.
 
 ### Three-Role Model
 
@@ -39,7 +39,7 @@ Every workflow enforces three isolated roles with explicit handoffs between them
 
 ### Run State Structure
 
-Each run is a UUID-named directory under `.musketeer/runs/` containing five YAML files: `intent.yml`, `constraints.yml`, `plan.yml`, `progress.yml`, and `handoff.yml`. Every file contains a `replay_id` field that must match its parent directory name.
+In SMALL-native mode, canonical intent, constraints, plan, progress, and handoff artifacts live under `.small/`. Musketeer-owned run artifacts live under `.musketeer/`, including packets, verdicts, and `runs/<replay_id>/execution-log.yml`.
 
 ### Key Design Patterns
 

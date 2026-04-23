@@ -3,8 +3,9 @@ name = "musketeer"
 version = "0.3.0"
 edition = "2021"
 license = "MIT"
-description = "Local-first, role-separated execution harness CLI"
-repository = "https://github.com/justyn-clark/musketeer"
+description = "SMALL-native, role-separated execution harness CLI"
+repository = "https://github.com/justynclarknetwork/musketeer"
+homepage = "https://musketeer.dev"
 
 [dependencies]
 clap = { version = "4", features = ["derive"] }

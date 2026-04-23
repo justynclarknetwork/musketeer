@@ -5,9 +5,16 @@
 [![Rust](https://img.shields.io/badge/rust-edition%202021-orange)](https://www.rust-lang.org)
 [![License](https://img.shields.io/github/license/justynclarknetwork/musketeer)](LICENSE)
 
-Musketeer is the public trio topology pack for governed work.
+Musketeer is a SMALL-native execution harness CLI for the Musketeer trio model.
 
-SMALL defines canonical execution state. Musketeer packages role-separated originator, examiner, and executor workflows against that state, adding packets, verdicts, and execution receipts without redefining the base contract. In the Pi-native stack, it should read as one topology among several, not the umbrella for everything.
+SMALL defines canonical execution state. Musketeer adds role-separated originator, examiner, and executor workflows against that state, writing packets, verdicts, and execution receipts without redefining the base contract. In the broader stack, Pi can host runtime behavior, but Musketeer is not a Pi extension pack and not the umbrella identity for the ecosystem.
+
+## Category, clearly
+
+- concrete Rust CLI, not just a concept
+- SMALL-native execution layer, not the protocol itself
+- trio workflow harness, not a general-purpose orchestration platform
+- compatible with Pi-native stacks, but not packaged like a Pi workflow pack such as Boardroom
 
 ## Architecture
 
@@ -57,6 +64,8 @@ Contains Musketeer-specific execution state:
 ```
 
 ## Quickstart
+
+Current distribution truth: build from source. Musketeer is not published as an npm package and it is not installed as a Pi pack.
 
 ```sh
 cargo build
