@@ -3,7 +3,7 @@ use clap::{Parser, Subcommand};
 #[derive(Parser, Debug)]
 #[command(name = "musketeer")]
 #[command(version)]
-#[command(about = "Role-separated execution harness", long_about = None)]
+#[command(about = "Role-separated trio workflow harness", long_about = None)]
 pub struct Cli {
     #[arg(long, global = true)]
     pub json: bool,

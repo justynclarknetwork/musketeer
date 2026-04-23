@@ -19,7 +19,7 @@ When no `--replay` is specified, the lexicographically last run ID is selected a
 
 ## Architecture
 
-Musketeer is a SMALL-native execution harness CLI for the Musketeer trio model. It structures planning, challenge, execution, and review into explicit stages with clear handoffs, bounded loops, and auditable outcomes. Canonical state lives in `.small/`, while Musketeer-owned execution artifacts live in `.musketeer/`.
+Musketeer is the SMALL-native trio workflow harness CLI. It structures planning, challenge, execution, and review into explicit stages with clear handoffs, bounded loops, and auditable outcomes. Canonical state lives in `.small/`, while Musketeer-owned execution artifacts live in `.musketeer/`.
 
 ### Three-Role Model
 

@@ -5,7 +5,7 @@
 [![Rust](https://img.shields.io/badge/rust-edition%202021-orange)](https://www.rust-lang.org)
 [![License](https://img.shields.io/github/license/justynclarknetwork/musketeer)](LICENSE)
 
-Musketeer is a SMALL-native execution harness CLI for the Musketeer trio model.
+Musketeer is the SMALL-native trio workflow harness CLI.
 
 SMALL defines canonical execution state. Musketeer adds role-separated originator, examiner, and executor workflows against that state, writing packets, verdicts, and execution receipts without redefining the base contract. In the broader stack, Pi can host runtime behavior, but Musketeer is not a Pi extension pack and not the umbrella identity for the ecosystem.
 
