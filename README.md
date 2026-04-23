@@ -31,7 +31,7 @@ Contains the protocol-defined execution artifacts:
 - `progress.small.yml` - execution progress
 - `handoff.small.yml` - structured handoff between roles
 
-Musketeer reads from `.small/` but never writes to it. These artifacts are owned by the SMALL protocol.
+Musketeer bootstraps `.small/` during `init`, then treats those canonical artifacts as the source of truth during normal operation.
 
 ### `.musketeer/` - Execution layer (owned by Musketeer)
 
@@ -87,6 +87,8 @@ musketeer verdict --role auditor --value approve --reason "all checks passed"
 musketeer check
 ```
 
+That default flow now lands in SMALL-native mode on a fresh workspace with no legacy-mode deprecation noise.
+
 ## Migration
 
 Legacy workspaces (artifacts under `.musketeer/runs/`) can be converted to SMALL-native layout:
@@ -102,7 +104,7 @@ SMALL-native is the canonical model going forward. Legacy shadow artifacts are d
 
 | Command | Description |
 |---------|-------------|
-| `init` | Bootstrap `.small/` if missing, create `.musketeer/` |
+| `init` | Bootstrap `.small/` defaults if missing, create `.musketeer/` |
 | `run new` | Create a new execution run in `.musketeer/runs/` |
 | `run status` | Show run state (workspace-mode-aware) |
 | `check` | Validate SMALL state and Musketeer execution state |

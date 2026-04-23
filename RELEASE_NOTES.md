@@ -11,14 +11,14 @@ Musketeer is now SMALL-native. This is the defining change of v0.3.0.
 
 ### What changed
 
-- `musketeer init` bootstraps `.small/` if absent and creates `.musketeer/`
+- `musketeer init` bootstraps `.small/` defaults if absent and creates `.musketeer/`
 - `musketeer run new` creates execution state in `.musketeer/runs/<id>/` only; no artifacts are written to `.small/`
 - `musketeer check` validates both SMALL canonical state and Musketeer execution state
 - `musketeer packet` reads from `.small/` to generate role context packets
 - `musketeer log` writes execution-log.yml in `.musketeer/runs/<id>/`, not legacy progress.yml
 - `musketeer verdict` writes to `.musketeer/verdicts/<id>.verdict.yml`
 - `musketeer migrate` converts legacy workspaces: archives to `.musketeer/legacy/<timestamp>/`, creates `.small/` with converted artifacts, writes `.musketeer/migration-report.yml`
-- Legacy workspace detection emits deprecation warnings on stderr
+- Legacy workspace detection emits deprecation warnings on stderr, but the fresh `init -> run new -> packet/log/verdict/check` flow now lands in SMALL-native mode cleanly
 
 ## Stable guarantees
 

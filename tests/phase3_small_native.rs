@@ -56,8 +56,7 @@ fn setup_small_workspace(root: &Path, replay_id: &str) {
 }
 
 fn setup_legacy_workspace(root: &Path) {
-    fs::create_dir_all(root.join(".musketeer")).unwrap();
-    run_cmd(root, &["init"]);
+    fs::create_dir_all(root.join(".musketeer/runs")).unwrap();
 }
 
 #[test]

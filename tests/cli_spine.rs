@@ -1,14 +1,12 @@
 use std::env;
 use std::fs;
-
 use std::sync::{Mutex, OnceLock};
 
 use tempfile::TempDir;
 
-use musketeer::fs::{layout, read, write};
-use musketeer::invariants::check::check_run;
-use musketeer::model::progress::{ProgressEntry, ProgressLog};
-use musketeer::model::run::Intent;
+use musketeer::fs::{layout, read};
+use musketeer::musketeer_namespace;
+use musketeer::small_workspace;
 
 fn setup_temp_workspace() -> TempDir {
     let temp_dir = TempDir::new().expect("temp dir");
@@ -39,7 +37,7 @@ fn test_lock() -> &'static Mutex<()> {
 }
 
 #[test]
-fn init_creates_state_dir() {
+fn init_creates_small_and_musketeer_state() {
     let _guard = test_lock().lock().expect("lock tests");
     let _temp = setup_temp_workspace();
     init_workspace();
@@ -48,108 +46,98 @@ fn init_creates_state_dir() {
     assert!(layout::state_dir(&root).exists());
     assert!(layout::config_path(&root).exists());
     assert!(layout::runs_dir(&root).exists());
+    assert!(small_workspace::small_dir(&root).exists());
+    assert!(small_workspace::workspace_path(&root).exists());
+    assert!(small_workspace::intent_path(&root).exists());
+    assert!(small_workspace::constraints_path(&root).exists());
+    assert!(small_workspace::plan_path(&root).exists());
+    assert!(small_workspace::progress_path(&root).exists());
+    assert!(small_workspace::handoff_path(&root).exists());
 }
 
 #[test]
-fn run_new_creates_run_files() {
+fn run_new_creates_execution_dir_without_legacy_artifacts() {
     let _guard = test_lock().lock().expect("lock tests");
     let _temp = setup_temp_workspace();
     init_workspace();
     let replay_id = create_run();
 
     let root = env::current_dir().unwrap();
-    assert!(layout::run_dir(&root, &replay_id).exists());
-    assert!(layout::intent_path(&root, &replay_id).exists());
-    assert!(layout::constraints_path(&root, &replay_id).exists());
-    assert!(layout::plan_path(&root, &replay_id).exists());
-    assert!(layout::progress_path(&root, &replay_id).exists());
-    assert!(layout::handoff_path(&root, &replay_id).exists());
+    let run_dir = layout::run_dir(&root, &replay_id);
+    assert!(run_dir.exists());
+    assert!(!layout::intent_path(&root, &replay_id).exists());
+    assert!(!layout::constraints_path(&root, &replay_id).exists());
+    assert!(!layout::plan_path(&root, &replay_id).exists());
+    assert!(!layout::progress_path(&root, &replay_id).exists());
+    assert!(!layout::handoff_path(&root, &replay_id).exists());
 }
 
 #[test]
-fn check_passes_on_fresh_run() {
+fn check_passes_on_fresh_small_native_run() {
+    let _guard = test_lock().lock().expect("lock tests");
+    let _temp = setup_temp_workspace();
+    init_workspace();
+    let replay_id = create_run();
+
+    musketeer::commands::check::run(Some(replay_id), false).expect("check passes");
+}
+
+#[test]
+fn check_fails_if_missing_small_file() {
     let _guard = test_lock().lock().expect("lock tests");
     let _temp = setup_temp_workspace();
     init_workspace();
     let replay_id = create_run();
 
     let root = env::current_dir().unwrap();
-    let result = check_run(&root, &replay_id);
-    assert!(result.ok, "expected ok, got: {:?}", result.errors);
+    fs::remove_file(small_workspace::intent_path(&root)).unwrap();
+    let err = musketeer::commands::check::run(Some(replay_id), false).unwrap_err();
+    let msg = err.to_string();
+    assert!(msg.contains("missing") || msg.contains("intent parse"));
 }
 
 #[test]
-fn check_fails_if_missing_file() {
+fn log_writes_execution_log() {
     let _guard = test_lock().lock().expect("lock tests");
     let _temp = setup_temp_workspace();
     init_workspace();
     let replay_id = create_run();
 
+    musketeer::commands::log::run(
+        "executor".to_string(),
+        "note".to_string(),
+        "first".to_string(),
+        Some(replay_id.clone()),
+        false,
+    )
+    .expect("log entry");
+
     let root = env::current_dir().unwrap();
-    fs::remove_file(layout::intent_path(&root, &replay_id)).unwrap();
-    let result = check_run(&root, &replay_id);
-    assert!(!result.ok);
-    assert!(result
-        .errors
-        .iter()
-        .any(|err| err.contains("missing required file intent")));
+    let log_path = musketeer_namespace::execution_log_path(&root, &replay_id);
+    assert!(log_path.exists());
+
+    let yaml: serde_yaml::Value = read::read_yaml(&log_path).unwrap();
+    let entries = yaml["entries"].as_sequence().unwrap();
+    assert_eq!(entries.len(), 1);
 }
 
 #[test]
-fn check_fails_if_replay_id_mismatch() {
+fn verdict_writes_verdict_file() {
     let _guard = test_lock().lock().expect("lock tests");
     let _temp = setup_temp_workspace();
     init_workspace();
     let replay_id = create_run();
 
-    let root = env::current_dir().unwrap();
-    let mut intent: Intent = read::read_yaml(&layout::intent_path(&root, &replay_id)).unwrap();
-    intent.replay_id = "wrong".to_string();
-    write::write_yaml(&layout::intent_path(&root, &replay_id), &intent).unwrap();
-
-    let result = check_run(&root, &replay_id);
-    assert!(!result.ok);
-    assert!(result
-        .errors
-        .iter()
-        .any(|err| err.contains("replay_id mismatch")));
-}
-
-#[test]
-fn check_fails_if_progress_seq_not_increasing() {
-    let _guard = test_lock().lock().expect("lock tests");
-    let _temp = setup_temp_workspace();
-    init_workspace();
-    let replay_id = create_run();
+    musketeer::commands::verdict::run(
+        "auditor".to_string(),
+        "approve".to_string(),
+        "looks good".to_string(),
+        Some(replay_id.clone()),
+        false,
+    )
+    .expect("verdict recorded");
 
     let root = env::current_dir().unwrap();
-    let progress = ProgressLog {
-        replay_id: replay_id.clone(),
-        entries: vec![
-            ProgressEntry {
-                seq: 1,
-                ts: "2024-01-01T00:00:00Z".to_string(),
-                role: "planner".to_string(),
-                kind: "note".to_string(),
-                message: "first".to_string(),
-                summary: "first".to_string(),
-            },
-            ProgressEntry {
-                seq: 1,
-                ts: "2024-01-01T00:00:01Z".to_string(),
-                role: "executor".to_string(),
-                kind: "note".to_string(),
-                message: "second".to_string(),
-                summary: "second".to_string(),
-            },
-        ],
-    };
-    write::write_yaml(&layout::progress_path(&root, &replay_id), &progress).unwrap();
-
-    let result = check_run(&root, &replay_id);
-    assert!(!result.ok);
-    assert!(result
-        .errors
-        .iter()
-        .any(|err| err.contains("strictly increasing")));
+    let verdict_path = musketeer_namespace::verdict_path(&root, &replay_id);
+    assert!(verdict_path.exists());
 }

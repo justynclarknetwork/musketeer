@@ -23,7 +23,7 @@ pub fn run(json_mode: bool) -> anyhow::Result<()> {
             let missing = small_workspace::missing_artifacts(&root);
             if !missing.is_empty() {
                 return Err(MusketeerError::HandoffInvalid(format!(
-                    "SMALL workspace incomplete, missing: {}. Run `small init` first.",
+                    "SMALL workspace incomplete, missing: {}. Run `musketeer init` first.",
                     missing.join(", ")
                 ))
                 .into());

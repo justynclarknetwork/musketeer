@@ -39,12 +39,21 @@ fn init_creates_workspace_files() {
     let v: serde_json::Value = serde_json::from_str(&out).expect("json");
     assert_eq!(v["tool"], "musketeer");
     assert_eq!(v["status"], "ok");
+    assert_eq!(v["mode"], "small_native");
     assert!(cwd.join(".musketeer").exists(), ".musketeer dir missing");
-    assert!(
-        cwd.join(".musketeer/musketeer.yml").exists(),
-        "musketeer.yml missing"
-    );
+    assert!(cwd.join(".musketeer/musketeer.yml").exists(), "musketeer.yml missing");
     assert!(cwd.join(".musketeer/runs").exists(), "runs dir missing");
+    assert!(cwd.join(".small").exists(), ".small dir missing");
+    for f in &[
+        "workspace.small.yml",
+        "intent.small.yml",
+        "constraints.small.yml",
+        "plan.small.yml",
+        "progress.small.yml",
+        "handoff.small.yml",
+    ] {
+        assert!(cwd.join(".small").join(f).exists(), "{f} missing");
+    }
 }
 
 #[test]
@@ -63,7 +72,7 @@ fn init_is_idempotent() {
 // --- run new ---
 
 #[test]
-fn run_new_creates_artifacts() {
+fn run_new_creates_small_native_execution_dir() {
     let td = tempfile::tempdir().expect("tempdir");
     let cwd = td.path();
     let replay_id = setup(cwd);
@@ -77,7 +86,7 @@ fn run_new_creates_artifacts() {
         "progress.yml",
         "handoff.yml",
     ] {
-        assert!(run_dir.join(f).exists(), "{f} missing");
+        assert!(!run_dir.join(f).exists(), "legacy artifact {f} should not exist");
     }
 }
 

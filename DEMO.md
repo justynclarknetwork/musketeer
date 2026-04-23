@@ -27,6 +27,12 @@ Expected output:
 ```
 
 Files created:
+- `.small/workspace.small.yml`
+- `.small/intent.small.yml`
+- `.small/constraints.small.yml`
+- `.small/plan.small.yml`
+- `.small/progress.small.yml`
+- `.small/handoff.small.yml`
 - `.musketeer/musketeer.yml`
 - `.musketeer/runs/`
 
@@ -40,15 +46,13 @@ musketeer run new --json
 
 Expected output:
 ```json
-{"tool":"musketeer","version":"1","status":"ok","replay_id":"<uuid>","errors":[],"replay_id":"<uuid>"}
+{"tool":"musketeer","version":"1","status":"ok","replay_id":"<uuid>","errors":[],"mode":"small_native"}
 ```
 
 Note the `replay_id`. Use it in subsequent commands. Files created:
-- `.musketeer/runs/<replay_id>/intent.yml`
-- `.musketeer/runs/<replay_id>/constraints.yml`
-- `.musketeer/runs/<replay_id>/plan.yml`
-- `.musketeer/runs/<replay_id>/progress.yml`
-- `.musketeer/runs/<replay_id>/handoff.yml`
+- `.musketeer/runs/<replay_id>/`
+
+No legacy shadow artifacts are created in the run directory.
 
 ### 3. check - verify invariants pass on fresh run
 
@@ -99,7 +103,7 @@ Expected output:
 {"tool":"musketeer","version":"1","status":"ok","replay_id":"<replay_id>","errors":[],"seq":1,"kind":"note"}
 ```
 
-Exit code: 0. The entry is appended to `.musketeer/runs/<replay_id>/progress.yml` with `seq: 1`.
+Exit code: 0. The entry is appended to `.musketeer/runs/<replay_id>/execution-log.yml` with `seq: 1`.
 
 ### 6. verdict (approve) - auditor signs off
 
@@ -159,7 +163,7 @@ musketeer run new --json
 
 Expected output:
 ```json
-{"tool":"musketeer","version":"1","status":"error","replay_id":null,"errors":["E_WORKSPACE_INVALID","workspace not initialized: missing /tmp/empty-dir/.musketeer"]}
+{"tool":"musketeer","version":"1","status":"error","replay_id":null,"errors":["E_WORKSPACE_INVALID","no workspace detected"]}
 ```
 
 Exit code: 30
