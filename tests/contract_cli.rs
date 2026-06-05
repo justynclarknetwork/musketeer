@@ -41,7 +41,10 @@ fn init_creates_workspace_files() {
     assert_eq!(v["status"], "ok");
     assert_eq!(v["mode"], "small_native");
     assert!(cwd.join(".musketeer").exists(), ".musketeer dir missing");
-    assert!(cwd.join(".musketeer/musketeer.yml").exists(), "musketeer.yml missing");
+    assert!(
+        cwd.join(".musketeer/musketeer.yml").exists(),
+        "musketeer.yml missing"
+    );
     assert!(cwd.join(".musketeer/runs").exists(), "runs dir missing");
     assert!(cwd.join(".small").exists(), ".small dir missing");
     for f in &[
@@ -86,7 +89,10 @@ fn run_new_creates_small_native_execution_dir() {
         "progress.yml",
         "handoff.yml",
     ] {
-        assert!(!run_dir.join(f).exists(), "legacy artifact {f} should not exist");
+        assert!(
+            !run_dir.join(f).exists(),
+            "legacy artifact {f} should not exist"
+        );
     }
 }
 

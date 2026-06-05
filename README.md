@@ -122,8 +122,9 @@ All commands support `--json` for machine-readable output and `--replay <id>` wh
 ## Development
 
 ```sh
-cargo fmt          # format code
-cargo test         # run all tests
+cargo fmt                  # format code
+cargo test                 # run all tests
+./scripts/evidence_report.sh  # concrete end-to-end evidence receipt
 ```
 
 ## License
