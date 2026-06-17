@@ -88,6 +88,9 @@ musketeer check
 ```
 
 That default flow now lands in SMALL-native mode on a fresh workspace with no legacy-mode deprecation noise.
+The phase 5 evidence proof covers this fresh-flow behavior in the system test
+spine; keep `docs/STATE.md` aligned if the state layout or evidence artifacts
+change again.
 
 ## Migration
 
